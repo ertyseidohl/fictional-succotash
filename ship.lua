@@ -8,10 +8,11 @@ SHIP_ACCELERATION = 0.0025;
 SHIP_FRICTION = 0.90;
 SHIP_MAX_VELOCITY = 0.05;
 
-function Ship:initialize(number, color, startAngle)
+function Ship:initialize(number, color, startAngle, keys)
 	self.number = number
 	self.color = color
 	self.angle = startAngle
+	self.keys = keys
 
 	self.velocity = 0
 end
@@ -45,9 +46,9 @@ function Ship:update(dt)
 	-- TODO button press
 	field:fill(dt, self)
 
-	if love.keyboard.isDown('z') then
+	if love.keyboard.isDown(self.keys.c) then
 		self.velocity = self.velocity + SHIP_ACCELERATION
-	elseif love.keyboard.isDown('x') then
+	elseif love.keyboard.isDown(self.keys.cc) then
 		self.velocity = self.velocity - SHIP_ACCELERATION
 	else
 		self.velocity = self.velocity * SHIP_FRICTION

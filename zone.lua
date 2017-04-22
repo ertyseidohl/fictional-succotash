@@ -112,7 +112,7 @@ function Zone:update(dt, clock)
 		if pulse.fillAmmount < 0 then
 			table.remove(self.pulses, k)
 
-		elseif clock['is_on_half'] and pulse:isFilled() then
+		elseif clock['is_on_quarter'] and pulse:isFilled() then
 			local nextRing = self.ring + pulse:getDirection()
 			local nextSlice = self.slice
 			if nextRing == 0 then

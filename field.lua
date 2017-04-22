@@ -36,6 +36,7 @@ end
 
 -- don't forget these are 1 indexed!
 function Field:getZone(ring, slice)
+	slice = ((slice - 1) % self.slices) + 1 -- this is why real programmers 0-index!
 	local index = self.slices * (ring - 1) + slice
 	return self.zones[index]
 end

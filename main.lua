@@ -19,12 +19,12 @@ local things = {
 
 local bpm = 120
 local bps = (bpm / 60)
-local temp_clock = 0
-local temp_beats = 0
-local temp_eighths = 0
 
 local clock = {
-	quarter_count = -1
+	quarter_count = -1,
+	half_count = -1,
+	eigth_count = -1,
+	time = 0
 }
 
 --debug
@@ -32,27 +32,32 @@ debug_print_keypresses = false
 
 function love.draw()
 	--love.graphics.clear()
-	local clock = {
-		beats = 4,
-		beat = temp_beats % 4,
-		eighths = temp_eighths % 4
-	}
-
 	for _, thing in pairs(things) do
 		thing:draw(clock)
 	end
 end
 
 function love.update(dt)
-
-	temp_clock = temp_clock + dt
-	temp_beats = math.floor(temp_clock * bps)
-	temp_eighths = math.floor(temp_clock * bps * 8)
-
+	local nextClockTime = clock.time + dt
 	local next_clock = {
-		quarter_count = math.floor(temp_clock * bps) % 4,
-		half_count = math.floor(temp_clock * bps / 2) % 2
+		half_count = math.floor(nextClockTime * bps / 2) % 2,
+		quarter_count = math.floor(nextClockTime * bps) % 4,
+		eighth_count = math.floor(nextClockTime * bps * 2) % 8,
+		sixteenth_count = math.floor(nextClockTime * bps * 4) % 16,
+		time = nextClockTime
 	}
+
+	if next_clock['sixteenth_count'] ~= clock['sixteenth_count'] then
+		next_clock['sixteenth_count'] = true;
+	else
+		next_clock['sixteenth_count'] = false;
+	end
+
+	if next_clock['eighth_count'] ~= clock['eighth_count'] then
+		next_clock['is_on_eighth'] = true;
+	else
+		next_clock['is_on_eighth'] = false;
+	end
 
 	if next_clock['quarter_count'] ~= clock['quarter_count'] then
 		next_clock['is_on_quarter'] = true;
@@ -65,6 +70,7 @@ function love.update(dt)
 	else
 		next_clock['is_on_half'] = false;
 	end
+
 
 	clock = next_clock
 

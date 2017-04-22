@@ -39,8 +39,6 @@ end
 
 function Zone:draw(clock)
 	love.graphics.setColor(255,255,255,255)
-	local inc = (255 / clock.eighths) * clock.beat
-
 	--if next(self.pulses) == nil then
 		love.graphics.arc(
 			'line',
@@ -85,18 +83,20 @@ function Zone:draw(clock)
 			SEGMENTS
 		)
 
-		love.graphics.setColor(255, 255, 255, inc)
 
-		love.graphics.arc(
-			'line',
-			'open',
-			self.center.x,
-			self.center.y,
-			radius,
-			self.startRadians,
-			self.endRadians,
-			SEGMENTS
-		)
+		love.graphics.setColor(255, 255, 255, 255)
+		if clock.eighth_count % 2 == 0 then
+			love.graphics.arc(
+				'line',
+				'open',
+				self.center.x,
+				self.center.y,
+				radius,
+				self.startRadians,
+				self.endRadians,
+				SEGMENTS
+			)
+		end
 		love.graphics.setLineWidth(oldLineWidth)
 	end
 	love.graphics.setColor(255, 255, 255, 255)
@@ -136,6 +136,7 @@ function Zone:postUpdate(dt, clock)
 		end
 	end
 end
+
 
 function Zone:putPulse(pulse)
 	self.pulses[pulse.ship.number] = pulse

@@ -43,7 +43,7 @@ end
 function Ship:update(dt)
 
 	-- TODO button press
-	if self.number == 1 then
+	if self.number % 2 == 1 then
 		field:fill(dt, self)
 	end
 

@@ -13,6 +13,10 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 	self.ring = ring
 	self.slice = slice
 
+	if ring == 1 then
+		innerRadius = 5 + ((slice % 3) * 3)
+	end
+
 	self.left = {
 		inner = {
 			x = self.center.x + (math.cos(startRadians) * innerRadius),

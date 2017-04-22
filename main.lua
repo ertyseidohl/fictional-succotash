@@ -23,6 +23,9 @@ local temp_clock = 0
 local temp_beats = 0
 local temp_eighths = 0
 
+--debug
+debug_print_keypresses = false
+
 function love.draw()
 	--love.graphics.clear()
 	local clock = {
@@ -49,5 +52,16 @@ function love.update(dt)
 	if love.keyboard.isDown('escape') then
 		love.event.quit()
 	end
+
+	--debug
+	if love.keyboard.isDown('p') then
+		debug_print_keypresses = true
+	end
 end
 
+-- debug
+function love.keypressed(key)
+	if debug_print_keypresses then
+		print(key)
+	end
+end

@@ -17,17 +17,35 @@ local things = {
 	Ship:new(4, 'yellow', 270)
 }
 
+local bpm = 120
+local bps = (bpm / 60)
+local temp_clock = 0
+local temp_beats = 0
+local temp_eighths = 0
+
 function love.draw()
 	--love.graphics.clear()
+	local clock = {
+		beats = 4,
+		beat = temp_beats % 4,
+		eighths = temp_eighths % 4
+	}
+
 	for _, thing in pairs(things) do
-		thing:draw(thing)
+		thing:draw(clock)
 	end
 end
 
-function love.update()
+function love.update(dt)
+
+	temp_clock = temp_clock + dt
+	temp_beats = math.floor(temp_clock * bps)
+	temp_eighths = math.floor(temp_clock * bps * 8)
+
 	for _, thing in pairs(things) do
-		thing:update(thing)
+		thing:update()
 	end
+
 	if love.keyboard.isDown('escape') then
 		love.event.quit()
 	end

@@ -23,6 +23,10 @@ local temp_clock = 0
 local temp_beats = 0
 local temp_eighths = 0
 
+local clock = {
+	quarter_count = -1
+}
+
 --debug
 debug_print_keypresses = false
 
@@ -45,8 +49,20 @@ function love.update(dt)
 	temp_beats = math.floor(temp_clock * bps)
 	temp_eighths = math.floor(temp_clock * bps * 8)
 
+	local next_clock = {
+		quarter_count = math.floor(temp_clock * bps) % 4
+	}
+
+	if next_clock['quarter_count'] ~= clock['quarter_count'] then
+		next_clock['is_on_quarter'] = true;
+	else
+		next_clock['is_on_quarter'] = false;
+	end
+
+	clock = next_clock
+
 	for _, thing in pairs(things) do
-		thing:update(dt)
+		thing:update(dt, clock)
 	end
 
 	if love.keyboard.isDown('escape') then

@@ -40,16 +40,13 @@ function Ship:draw()
 	})
 end
 
-<<<<<<< HEAD
 function Ship:update(dt)
-	self.angle = self.angle + 0.005
 
 	-- TODO button press
 	if self.number == 1 then
 		field:fill(dt, self)
 	end
-=======
-function Ship:update()
+
 	if love.keyboard.isDown('z') then
 		self.velocity = self.velocity + SHIP_ACCELERATION
 	elseif love.keyboard.isDown('x') then
@@ -64,8 +61,7 @@ function Ship:update()
 		self.velocity = -1 * SHIP_MAX_VELOCITY
 	end
 
-	self.angle = self.angle + self.velocity
->>>>>>> 33085d0f9649aea9f06de34aa33d07e5726ea083
+	self.angle = (self.angle + self.velocity) % (math.pi*2)
 end
 
 return Ship

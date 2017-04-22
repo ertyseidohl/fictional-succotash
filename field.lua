@@ -22,6 +22,8 @@ function Field:generateZones()
 		for slice = 1, self.slices, 1 do
 			--love.event.quit()
 			table.insert(self.zones, Zone:new(
+				ring,
+				slice,
 				self.center,
 				(slice - 1) * self.radialWidth,
 				(slice) * self.radialWidth,
@@ -33,13 +35,13 @@ function Field:generateZones()
 end
 
 -- don't forget these are 1 indexed!
-function Field:getZone(slice, ring)
+function Field:getZone(ring, slice)
 	local index = self.slices * (ring - 1) + slice
 	return self.zones[index]
 end
 
 function Field:fill(dt, ship)
-	local zone = self:getZone(math.ceil(ship.angle / self.radialWidth), self.rings)
+	local zone = self:getZone(self.rings, math.ceil(ship.angle / self.radialWidth))
 	zone:fill(dt, ship)
 end
 
@@ -49,9 +51,9 @@ function Field:draw(clock)
 	end
 end
 
-function Field:update(dt)
+function Field:update(dt, clock)
 	for _, zone in pairs(self.zones) do
-		zone:update(dt)
+		zone:update(dt, clock)
 	end
 end
 

@@ -11,10 +11,10 @@ field = Field:new(4, 32, MAXRADIUS)
 
 local things = {
 	field,
-	Ship:new(1, 'red', 0),
-	Ship:new(2, 'blue', 180),
-	Ship:new(3, 'green', 90),
-	Ship:new(4, 'yellow', 270)
+	Ship:new(1, {255,0,0,255}, 0),
+	Ship:new(2, {0,0,255,255}, math.pi),
+	Ship:new(3, {0,255,0,255}, math.pi * 0.5),
+	Ship:new(4, {255,255,0,255}, math.pi * 1.5)
 }
 
 local bpm = 120

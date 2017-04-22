@@ -38,6 +38,12 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 		}
 	}
 
+	self.isBlocked = false
+
+	if ring == 2 and slice % 4 == 0 then
+		self.isBlocked = true
+	end
+
 	self.pulses = {}
 	self.nextPulses = {}
 end
@@ -66,16 +72,20 @@ function Zone:draw(clock)
 			SEGMENTS
 		)
 
-	if next(self.pulses) ~= nil then
+	local hasPulse = next(self.pulses) ~= nil
+
+	if hasPulse or self.isBlocked then
 
 		local pulse = self.pulses[next(self.pulses)]
 		local lineWidth = (self.outerRadius - self.innerRadius)
 		local radius = self.innerRadius + (lineWidth / 2)
 		local oldLineWidth = love.graphics.getLineWidth()
 
-
 		love.graphics.setLineWidth(lineWidth)
-		love.graphics.setColor(unpack(pulse.ship.color))
+
+		if hasPulse then
+			love.graphics.setColor(unpack(pulse.ship.color))
+		end
 
 		love.graphics.arc(
 			'line',
@@ -88,9 +98,9 @@ function Zone:draw(clock)
 			SEGMENTS
 		)
 
-
 		love.graphics.setColor(255, 255, 255, 255)
-		if clock.eighth_count % 2 == 0 then
+
+		if hasPulse and clock.eighth_count % 2 == 0 then
 			love.graphics.arc(
 				'line',
 				'open',
@@ -138,15 +148,17 @@ end
 
 function Zone:postUpdate(dt, clock)
 
-	local cnt = 0;
-	for k, pulse in pairs(self.nextPulses) do
-		cnt = cnt + 1
-	end
+	if not self.isBlocked then
+		local cnt = 0;
+		for k, pulse in pairs(self.nextPulses) do
+			cnt = cnt + 1
+		end
 
-	if cnt > 2 then
-		--TODO add collision pulse
-	else
-		self.pulses = self.nextPulses;
+		if cnt > 2 then
+			self.isBlocked = true
+		else
+			self.pulses = self.nextPulses;
+		end
 	end
 
 	self.nextPulses = {}

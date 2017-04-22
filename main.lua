@@ -9,12 +9,14 @@ HEIGHT = 600
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.75
 field = Field:new(4, 32, MAXRADIUS)
 
+local radialWidthHalf = (math.pi * 2 / 32) / 2
+
 local things = {
 	field,
-	Ship:new(1, {255,0,0,255}, 0, {cc = 'z', c = 'x'}),
-	Ship:new(2, {0,0,255,255}, math.pi, {cc = 'c', c = 'v'}),
-	Ship:new(3, {0,255,0,255}, math.pi * 0.5, {cc = 'b', c = 'n'}),
-	Ship:new(4, {255,255,0,255}, math.pi * 1.5, {cc = 'm', c = ','})
+	Ship:new(1, {255,0,0,255}, radialWidthHalf, {cc = 'z', c = 'x'}),
+	Ship:new(2, {0,0,255,255}, math.pi + radialWidthHalf, {cc = 'c', c = 'v'}),
+	Ship:new(3, {0,255,0,255}, math.pi * 0.5 + radialWidthHalf, {cc = 'b', c = 'n'}),
+	Ship:new(4, {255,255,0,255}, math.pi * 1.5 + radialWidthHalf, {cc = 'm', c = ','})
 }
 
 local bpm = 120

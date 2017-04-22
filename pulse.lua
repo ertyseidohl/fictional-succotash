@@ -1,7 +1,6 @@
 local Pulse = class('Pulse')
 
 function Pulse:initialize(ship, fillTarget)
-
 	self.ship = ship
 	self.fillAmmount = 0
 	self.fillTarget = fillTarget

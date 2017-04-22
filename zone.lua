@@ -35,6 +35,7 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 	}
 
 	self.pulses = {}
+	self.nextPulses = {}
 end
 
 function Zone:draw(clock)
@@ -110,14 +111,8 @@ function Zone:update(dt, clock)
 
 		if pulse.fillAmmount < 0 then
 			table.remove(self.pulses, k)
-		end
-	end
-end
 
-function Zone:postUpdate(dt, clock)
-	for k, pulse in pairs(self.pulses) do
-		if clock['is_on_half'] and pulse:isFilled() and not pulse:hasMoved() then
-
+		elseif clock['is_on_half'] and pulse:isFilled() then
 			local nextRing = self.ring + pulse:getDirection()
 			local nextSlice = self.slice
 			if nextRing == 0 then
@@ -129,17 +124,33 @@ function Zone:postUpdate(dt, clock)
 
 			if zone ~= nil then
 				zone:putPulse(pulse)
-				pulse:setMoved()
 			end
-
-			table.remove(self.pulses, k)
+		else
+			self:putPulse(pulse)
 		end
+
 	end
+end
+
+function Zone:postUpdate(dt, clock)
+
+	local cnt = 0;
+	for k, pulse in pairs(self.nextPulses) do
+		cnt = cnt + 1
+	end
+
+	if cnt > 2 then
+		--TODO add collision pulse
+	else
+		self.pulses = self.nextPulses;
+	end
+
+	self.nextPulses = {}
 end
 
 
 function Zone:putPulse(pulse)
-	self.pulses[pulse.ship.number] = pulse
+	self.nextPulses[pulse.ship.number] = pulse
 end
 
 function Zone:fill(dt, ship)

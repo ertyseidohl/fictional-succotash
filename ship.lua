@@ -34,8 +34,13 @@ function Ship:draw()
 	})
 end
 
-function Ship:update()
+function Ship:update(dt)
 	self.angle = self.angle + 0.005
+
+	-- TODO button press
+	if self.number == 1 then
+		field:fill(dt, self)
+	end
 end
 
 return Ship

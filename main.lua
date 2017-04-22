@@ -43,7 +43,7 @@ function love.update(dt)
 	temp_eighths = math.floor(temp_clock * bps * 8)
 
 	for _, thing in pairs(things) do
-		thing:update()
+		thing:update(dt)
 	end
 
 	if love.keyboard.isDown('escape') then

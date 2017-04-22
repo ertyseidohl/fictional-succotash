@@ -38,8 +38,9 @@ function Field:getZone(slice, ring)
 	return self.zones[index]
 end
 
-function Field:fire(ship)
+function Field:fill(dt, ship)
 	local zone = self:getZone(math.ceil(ship.angle / self.radialWidth), self.rings)
+	zone:fill(dt, ship)
 end
 
 function Field:draw(clock)
@@ -48,9 +49,9 @@ function Field:draw(clock)
 	end
 end
 
-function Field:update()
+function Field:update(dt)
 	for _, zone in pairs(self.zones) do
-		zone:update()
+		zone:update(dt)
 	end
 end
 

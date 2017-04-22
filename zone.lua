@@ -1,5 +1,7 @@
 local Zone = class('Zone')
 
+local Pulse = require 'pulse'
+
 local SEGMENTS = 5
 
 function Zone:initialize(center, startRadians, endRadians, innerRadius, outerRadius)
@@ -31,9 +33,6 @@ function Zone:initialize(center, startRadians, endRadians, innerRadius, outerRad
 	}
 
 	self.pulses = {}
-	if innerRadius > 150 and startRadians < .05 then
-		table.insert(self.pulses, "dummy")
-	end
 end
 
 function Zone:draw(clock)
@@ -84,8 +83,20 @@ function Zone:draw(clock)
 	love.graphics.line(self.right.inner.x, self.right.inner.y, self.right.outer.x, self.right.outer.y)
 end
 
-function Zone:update()
+function Zone:update(dt)
+	for k, pulse in pairs(self.pulses) do
+		pulse:update(dt)
+		if pulse.fillAmmount < 0 then
+			table.remove(self.pulses, k)
+		end
+	end
+end
 
+function Zone:fill(dt, ship)
+	if self.pulses[ship.number] == nil then
+		self.pulses[ship.number] = Pulse:new(ship, 100)
+	end
+	self.pulses[ship.number]:fill(dt)
 end
 
 return Zone

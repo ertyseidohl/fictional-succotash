@@ -4,10 +4,16 @@ SHIP_RADIAL_WIDTH = math.rad(25);
 SHIP_HEIGHT = 25;
 SHIP_BUFFER = 10;
 
+SHIP_ACCELERATION = 0.0025;
+SHIP_FRICTION = 0.90;
+SHIP_MAX_VELOCITY = 0.05;
+
 function Ship:initialize(number, color, startAngle)
 	self.number = number
 	self.color = color
 	self.angle = startAngle
+
+	self.velocity = 0
 end
 
 function Ship:draw()
@@ -35,7 +41,21 @@ function Ship:draw()
 end
 
 function Ship:update()
-	self.angle = self.angle + 0.005
+	if love.keyboard.isDown('z') then
+		self.velocity = self.velocity + SHIP_ACCELERATION
+	elseif love.keyboard.isDown('x') then
+		self.velocity = self.velocity - SHIP_ACCELERATION
+	else
+		self.velocity = self.velocity * SHIP_FRICTION
+	end
+
+	if self.velocity > SHIP_MAX_VELOCITY then
+		self.velocity = SHIP_MAX_VELOCITY
+	elseif self.velocity < -1 * SHIP_MAX_VELOCITY then
+		self.velocity = -1 * SHIP_MAX_VELOCITY
+	end
+
+	self.angle = self.angle + self.velocity
 end
 
 return Ship

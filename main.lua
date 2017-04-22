@@ -50,13 +50,20 @@ function love.update(dt)
 	temp_eighths = math.floor(temp_clock * bps * 8)
 
 	local next_clock = {
-		quarter_count = math.floor(temp_clock * bps) % 4
+		quarter_count = math.floor(temp_clock * bps) % 4,
+		half_count = math.floor(temp_clock * bps / 2) % 2
 	}
 
 	if next_clock['quarter_count'] ~= clock['quarter_count'] then
 		next_clock['is_on_quarter'] = true;
 	else
 		next_clock['is_on_quarter'] = false;
+	end
+
+	if next_clock['half_count'] ~= clock['half_count'] then
+		next_clock['is_on_half'] = true;
+	else
+		next_clock['is_on_half'] = false;
 	end
 
 	clock = next_clock

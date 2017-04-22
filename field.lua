@@ -55,6 +55,10 @@ function Field:update(dt, clock)
 	for _, zone in pairs(self.zones) do
 		zone:update(dt, clock)
 	end
+
+	for _, zone in pairs(self.zones) do
+		zone:postUpdate(dt, clock)
+	end
 end
 
 return Field

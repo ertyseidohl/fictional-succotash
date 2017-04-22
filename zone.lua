@@ -62,12 +62,31 @@ function Zone:draw(clock)
 			self.endRadians,
 			SEGMENTS
 		)
+
 	if next(self.pulses) ~= nil then
+
+		local pulse = self.pulses[next(self.pulses)]
 		local lineWidth = (self.outerRadius - self.innerRadius)
 		local radius = self.innerRadius + (lineWidth / 2)
 		local oldLineWidth = love.graphics.getLineWidth()
-		love.graphics.setColor(255, 255, 255, inc)
+
+
 		love.graphics.setLineWidth(lineWidth)
+		love.graphics.setColor(unpack(pulse.ship.color))
+
+		love.graphics.arc(
+			'line',
+			'open',
+			self.center.x,
+			self.center.y,
+			radius,
+			self.startRadians,
+			self.endRadians,
+			SEGMENTS
+		)
+
+		love.graphics.setColor(255, 255, 255, inc)
+
 		love.graphics.arc(
 			'line',
 			'open',
@@ -87,28 +106,39 @@ end
 
 function Zone:update(dt, clock)
 	for k, pulse in pairs(self.pulses) do
-		local remove = false
 		pulse:update(dt)
 
-		print(pulse.fillAmmount)
-		if clock['is_on_quarter'] and pulse:isFilled() then
-			local zone = field:getZone(self.ring - 1, self.slice)
-			zone:putPulse(pulse)
-			remove = true
-		end
-
 		if pulse.fillAmmount < 0 then
-			remove = true
+			table.remove(self.pulses, k)
 		end
+	end
+end
 
-		if remove then
+function Zone:postUpdate(dt, clock)
+	for k, pulse in pairs(self.pulses) do
+		if clock['is_on_half'] and pulse:isFilled() and not pulse:hasMoved() then
+
+			local nextRing = self.ring + pulse:getDirection()
+			local nextSlice = self.slice
+			if nextRing == 0 then
+				nextRing = self.ring
+				nextSlice = (self.slice + (field.slices / 2)) % field.slices
+				pulse:reverseDirection()
+			end
+			local zone = field:getZone(nextRing, nextSlice)
+
+			if zone ~= nil then
+				zone:putPulse(pulse)
+				pulse:setMoved()
+			end
+
 			table.remove(self.pulses, k)
 		end
 	end
 end
 
 function Zone:putPulse(pulse)
-	--self.pulses[pulse.ship.number] = pulse
+	self.pulses[pulse.ship.number] = pulse
 end
 
 function Zone:fill(dt, ship)

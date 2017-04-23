@@ -21,7 +21,7 @@ function Menu:draw()
 
 	-- debug
 	love.graphics.setColor({255, 255, 255, 255})
-	love.graphics.print("` to jump in with 4 players", 100, 300)
+	love.graphics.print("space to jump in with 4 players", 100, 300)
 	love.graphics.print("o to add quarter", 100, 350)
 	love.graphics.print("1,2,3,4 to add player (with credit)", 100, 400)
 	love.graphics.print("g to start game (with players)", 100, 450)

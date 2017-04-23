@@ -163,7 +163,7 @@ function love.keypressed(key)
 		end
 	end
 
-	if key == "`" then
+	if key == "space" then
 		for i = 1, 4, 1 do
 			menu:addCredit()
 			menu:addPlayer(i)

@@ -114,7 +114,11 @@ function Zone:update(dt, clock)
 
 			--try to advance
 			--if nextRing < INNER_RINGS or nextZone:getPulse() ~= nil then
-			if nextRing < INNER_RINGS or nextZone:isSolid() then
+
+			if (nextRing < INNER_RINGS or
+				nextZone:isBlocked() or
+				(nextZone:getPulse() and nextZone:getPulse().direction == pulse.direction))
+			then
 				self:putPulse(pulse)
 			else
 				nextZone:putPulse(pulse)
@@ -150,7 +154,7 @@ function Zone:postUpdate(dt, clock)
 	self.nextPulses = {}
 end
 
-function Zone:isSolid()
+function Zone:isBlocked()
 	return self.blockedState.isBlocked or self:getPulse() ~= nil
 end
 

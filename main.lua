@@ -1,15 +1,18 @@
 class = require 'lib/middleclass'
 
-local Field = require 'field'
-local Ship = require 'ship'
-
 -- globals
+BPM = 150
+BPS = BPM / 60
 WIDTH = 800
 HEIGHT = 600
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
-field = Field:new(4, 32, MAXRADIUS)
-BPM = 150
-BPS = BPM / 60
+
+local Field = require 'field'
+local Ship = require 'ship'
+
+-- global field
+field = Field:new(16, 32, MAXRADIUS)
+
 
 love.graphics.setLineJoin('bevel')
 

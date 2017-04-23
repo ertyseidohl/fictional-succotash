@@ -3,6 +3,7 @@ local Zone = class('Zone')
 local Pulse = require 'pulse'
 
 local SEGMENTS = 12
+local FILL_SPEED = 0.5 / BPS
 
 function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRadius, outerRadius, isBlast)
 	self.center = center
@@ -81,8 +82,17 @@ function Zone:draw(clock)
 
 		love.graphics.setLineWidth(lineWidth)
 
-		if hasPulse then
+		local fillStart = self.startRadians
+		local fillEnd = self.endRadians
+
+		if (hasPulse) then
 			love.graphics.setColor(unpack(pulse.ship.color))
+
+			if not pulse:isFilled() then
+				local width = (fillEnd - fillStart)
+				fillStart = self.startRadians + (width / 2) - pulse:getPercentFilled() * width / 2
+				fillEnd = self.startRadians + (width / 2) + pulse:getPercentFilled() * width / 2
+			end
 		end
 
 		love.graphics.arc(
@@ -91,25 +101,27 @@ function Zone:draw(clock)
 			self.center.x,
 			self.center.y,
 			radius,
-			self.startRadians,
-			self.endRadians,
+			fillStart,
+			fillEnd,
 			SEGMENTS
 		)
 
 		love.graphics.setColor(255, 255, 255, 255)
 
-		if hasPulse and clock.eighth_count % 2 == 0 then
-			love.graphics.arc(
-				'line',
-				'open',
-				self.center.x,
-				self.center.y,
-				radius,
-				self.startRadians,
-				self.endRadians,
-				SEGMENTS
-			)
-		end
+		-- blinking white
+
+		-- if hasPulse and clock.eighth_count % 2 == 0 then
+		-- 	love.graphics.arc(
+		-- 		'line',
+		-- 		'open',
+		-- 		self.center.x,
+		-- 		self.center.y,
+		-- 		radius,
+		-- 		self.startRadians,
+		-- 		self.endRadians,
+		-- 		SEGMENTS
+		-- 	)
+		-- end
 		love.graphics.setLineWidth(oldLineWidth)
 	end
 
@@ -138,7 +150,7 @@ function Zone:update(dt, clock)
 		if pulse.fillAmount < 0 then
 			table.remove(self.pulses, k)
 
-		elseif clock['is_on_quarter'] and pulse:isFilled() then
+		elseif clock['is_on_eighth'] and pulse:isFilled() then
 			local nextRing = self.ring + pulse.direction
 			local nextSlice = self.slice
 			if nextRing == 0 then
@@ -164,7 +176,6 @@ function Zone:postUpdate(dt, clock)
 		self.nextPulses = {}
 		self.pulses = {}
 	end
-
 
 	local nextPulsesCount = 0
 	local nextPulsesKey = 0
@@ -215,7 +226,7 @@ end
 
 function Zone:fill(dt, ship)
 	if self.pulses[ship.number] == nil then
-		self.pulses[ship.number] = Pulse:new(ship, 2 / BPS, self.startRadians)
+		self.pulses[ship.number] = Pulse:new(ship, FILL_SPEED, self.startRadians)
 	end
 	self.pulses[ship.number]:fill(dt)
 end

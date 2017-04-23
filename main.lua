@@ -9,6 +9,7 @@ MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
 
 local Field = require 'field'
 local Ship = require 'ship'
+local MusicSystem = require 'musicsystem'
 
 -- global field
 field = Field:new(16, 32, MAXRADIUS)
@@ -20,8 +21,12 @@ local clock = {
 	quarter_count = -1,
 	half_count = -1,
 	eigth_count = -1,
-	time = 0
+	time = 0,
 }
+
+local firstUpdate = true
+
+local musicsystem = nil
 
 --debug
 debug_print_keypresses = false
@@ -30,8 +35,19 @@ function love.draw()
 	field:draw(clock)
 end
 
+function love.load() 
+	musicsystem = MusicSystem:new()
+end	
+
 function love.update(dt)
-	local nextClockTime = clock.time + dt
+
+	if firstUpdate then
+		musicsystem:play()
+		firstUpdate = false
+	end
+
+	--local nextClockTime = clock.time + dt
+	local nextClockTime = musicsystem:update(dt)
 	local next_clock = {
 		half_count = math.floor(nextClockTime * BPS / 2) % 2,
 		quarter_count = math.floor(nextClockTime * BPS) % 4,
@@ -84,4 +100,11 @@ function love.keypressed(key)
 	if debug_print_keypresses then
 		print(key)
 	end
+
+	if key == "p" then
+		musicsystem:adjustUp()
+	elseif key == "o" then
+		musicsystem:adjustDown()
+	end
+	io.flush()
 end

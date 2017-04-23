@@ -114,6 +114,7 @@ function love.draw()
 		postEffect:draw(function()
 			field:draw(clock)
 		end)
+		field:draw(clock)
 	elseif gameState == STATE_MENU then
 		menu:draw(clock)
 	elseif gameState == STATE_GAME_OVER then

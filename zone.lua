@@ -38,39 +38,60 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 
 	self.pulses = {}
 	self.nextPulses = {}
+
+	self.blockedState = {
+		isBlocked = false
+	}
 end
 
 function Zone:draw(clock)
+
 	local pulse = self:getPulse()
+
+	local lineWidth = (self.outerRadius - self.innerRadius)
+	local radius = self.innerRadius + (lineWidth / 2)
+
+	local fillStart = self.startRadians
+	local fillEnd = self.endRadians
+
+	local color = {}
+
 	if pulse ~= nil then
-		local lineWidth = (self.outerRadius - self.innerRadius)
-		local radius = self.innerRadius + (lineWidth / 2)
-
-		love.graphics.setLineWidth(lineWidth)
-
-		local fillStart = self.startRadians
-		local fillEnd = self.endRadians
-
-		love.graphics.setColor(unpack(pulse.ship.color))
+		color = pulse.ship.color
 
 		if not pulse:isFilled() then
 			local width = (fillEnd - fillStart)
 			fillStart = self.startRadians + (width / 2) - pulse:getPercentFilled() * width / 2
 			fillEnd = self.startRadians + (width / 2) + pulse:getPercentFilled() * width / 2
 		end
-
-		love.graphics.arc(
-			'line',
-			'open',
-			self.center.x,
-			self.center.y,
-			radius,
-			fillStart,
-			fillEnd,
-			SEGMENTS
-		)
+	elseif self.blockedState.isBlocked then
+		color = self.blockedState.color
+	else
+		return
 	end
 
+	love.graphics.setLineWidth(lineWidth)
+	love.graphics.setColor(unpack(color))
+
+	love.graphics.arc(
+		'line',
+		'open',
+		self.center.x,
+		self.center.y,
+		radius,
+		fillStart,
+		fillEnd,
+		SEGMENTS
+	)
+end
+
+function Zone:preUpdate(dt, clock)
+	if self.blockedState.isBlocked and clock.is_on_eighth then
+		self.blockedState.blockedCount = self.blockedState.blockedCount - 1
+		if self.blockedState.blockedCount == 0 then
+			self.blockedState.isBlocked = false
+		end
+	end
 end
 
 function Zone:update(dt, clock)
@@ -80,24 +101,25 @@ function Zone:update(dt, clock)
 		if pulse.fillAmount <= 0 then
 			table.remove(self.pulses, k)
 
-		elseif clock['is_on_eighth'] and pulse:isFilled() then
+		elseif self.isBlast and clock['is_on_eighth'] then
+			return -- drop pulse
+		elseif self.isBlast then
+			self:putPulse(pulse) -- save pulse until the eigth
+		elseif not clock['is_on_eighth'] or not pulse:isFilled() then
+			self:putPulse(pulse) -- save pulse until the eighth or until it is filled
+			return
+		else -- on the eighths for all pulses that are not in blast zones and are filled
 			local nextRing = self.ring + pulse.direction
-			local nextSlice = self.slice
-			if nextRing < INNER_RINGS or
-				(
-					not self.isBlast and
-					field:getZone(nextRing, nextSlice):getPulse() ~= nil
-				)
-			then
-				self:putPulse(pulse)
-			elseif not self.isBlast then
-				local zone = field:getZone(nextRing, nextSlice)
-				zone:putPulse(pulse)
-			end
-		else
-			self:putPulse(pulse)
-		end
+			local nextZone = field:getZone(nextRing, self.slice)
 
+			--try to advance
+			--if nextRing < INNER_RINGS or nextZone:getPulse() ~= nil then
+			if nextRing < INNER_RINGS or nextZone:isSolid() then
+				self:putPulse(pulse)
+			else
+				nextZone:putPulse(pulse)
+			end
+		end
 	end
 end
 
@@ -112,28 +134,32 @@ function Zone:postUpdate(dt, clock)
 
 	--two or more pulses will colide
 	if nextPulsesCount > 1 then
-		self:setBlocked()
+		self:setBlocked(self.nextPulses[nextPulsesKey].ship.color)
+		self.nextPulses = {}
+
 	elseif nextPulsesCount == 1 then
 		for k, pulse in pairs(self.pulses) do
-			if pulse.angle ~= self.nextPulses[nextPulsesKey].angle then
-				self:setBlocked()
+			if pulse.direction ~= self.nextPulses[nextPulsesKey].direction then
+				self:setBlocked(pulse.ship.color)
+				self.nextPulses = {}
 			end
 		end
 	end
 
-	if not self.isBlocked then
-		self.pulses = self.nextPulses;
-	else
-		self.pulses = {}
-	end
-
+	self.pulses = self.nextPulses
 	self.nextPulses = {}
 end
 
+function Zone:isSolid()
+	return self.blockedState.isBlocked or self:getPulse() ~= nil
+end
 
-function Zone:setBlocked()
-	self.isBlocked = true
-	self.blockedCount = 4
+function Zone:setBlocked(color)
+	self.blockedState = {
+		isBlocked = true,
+		blockedCount = 4,
+		color = color
+	}
 end
 
 function Zone:putPulse(pulse)

@@ -123,7 +123,7 @@ function Zone:update(dt, clock)
 			table.remove(self.pulses, k)
 
 		elseif clock['is_on_quarter'] and pulse:isFilled() then
-			local nextRing = self.ring + pulse:getDirection()
+			local nextRing = self.ring + pulse.direction
 			local nextSlice = self.slice
 			if nextRing == 0 then
 				nextRing = self.ring
@@ -162,9 +162,8 @@ function Zone:postUpdate(dt, clock)
 	if nextPulsesCount > 1 then
 		self.isBlocked = true
 	elseif nextPulsesCount == 1 then
-		print "hello"
 		for k, pulse in pairs(self.pulses) do
-			if pulse.direction ~= self.nextPulses[nextPulsesKey].direction then
+			if pulse.angle ~= self.nextPulses[nextPulsesKey].angle then
 				self.isBlocked = true
 			end
 		end
@@ -186,7 +185,7 @@ end
 
 function Zone:fill(dt, ship)
 	if self.pulses[ship.number] == nil then
-		self.pulses[ship.number] = Pulse:new(ship, 2)
+		self.pulses[ship.number] = Pulse:new(ship, 2, self.startRadians)
 	end
 	self.pulses[ship.number]:fill(dt)
 end

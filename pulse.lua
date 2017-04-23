@@ -1,15 +1,14 @@
 local Pulse = class('Pulse')
 
-function Pulse:initialize(ship, fillTarget)
+function Pulse:initialize(ship, fillTarget, angle)
 	self.ship = ship
 	self.fillAmmount = 0
 	self.fillTarget = fillTarget
+	self.angle = angle
 	self.direction = -1
-	self.moved = false
 end
 
 function Pulse:update(dt)
-	self.moved = false
 	if self:isFilled() then
 		return
 	end
@@ -27,18 +26,6 @@ end
 
 function Pulse:getPercentFilled()
 	return self.fillAmmount / self.fillTarget
-end
-
-function Pulse:hasMoved()
-	return self.moved
-end
-
-function Pulse:setMoved()
-	self.moved = true
-end
-
-function Pulse:getDirection()
-	return self.direction
 end
 
 function Pulse:reverseDirection()

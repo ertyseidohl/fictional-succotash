@@ -22,13 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]--
 
-return {
-description = "Box blur shader with support for different horizontal and vertical blur size",
-
-new = function(self)
-	self.radius_h, self.radius_v = 3, 3
-	self.canvas_h, self.canvas_v = love.graphics.newCanvas(), love.graphics.newCanvas()
-	self.shader = love.graphics.newShader[[
+local GL_SHADER_SOURCE = [[
 		extern vec2 direction;
 		extern number radius;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
@@ -42,6 +36,16 @@ new = function(self)
 			return c / (2.0f * radius + 1.0f) * color;
 		}
 	]]
+
+return {
+description = "Box blur shader with support for different horizontal and vertical blur size",
+
+new = function(self)
+	self.radius_h, self.radius_v = 3, 3
+	self.canvas_h, self.canvas_v = love.graphics.newCanvas(), love.graphics.newCanvas()
+	self.shader = love.graphics.newShader(GL_SHADER_SOURCE)
+	warnings = self.shader:getWarnings( )
+	print("GL issues: " .. warnings)
 	self.shader:send("direction",{1.0,0.0}) --Not needed but may fix some errors if the shader is used somewhere else
 end,
 

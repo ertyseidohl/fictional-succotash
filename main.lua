@@ -97,14 +97,13 @@ debug_print_keypresses = false
 
 
 function love.load()
-	musicsystem = MusicSystem:new()
-	postEffect = Shine.boxblur()
-
 	print(name,5,5)
 	print(version,5,15)
 	print(vendor,5,25)
 	print(device ,5,35)
-
+	
+	musicsystem = MusicSystem:new()
+	postEffect = Shine.boxblur()
 end
 
 function love.draw()

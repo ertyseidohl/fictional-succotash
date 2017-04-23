@@ -35,9 +35,9 @@ function love.draw()
 	field:draw(clock)
 end
 
-function love.load() 
+function love.load()
 	musicsystem = MusicSystem:new()
-end	
+end
 
 function love.update(dt)
 

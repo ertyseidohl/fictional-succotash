@@ -42,6 +42,12 @@ function Field:setPlayers(players)
 	end
 end
 
+function Field:killPlayers()
+	for i = 1, #self.ships, 1 do
+		self.ships[i].lives = 0
+	end
+end
+
 function Field:generateZones()
 	for ring = 1, self.rings, 1 do
 		for slice = 1, self.slices, 1 do
@@ -123,8 +129,16 @@ function Field:update(dt, clock)
 	self.devil:update(dt, clock)
 
 	-- update ships
+	local aliveShips = 0
 	for _, ship in pairs(self.ships) do
 		ship:update(dt, clock)
+		if ship:isAlive() then
+			aliveShips = aliveShips + 1
+		end
+	end
+	if aliveShips == 0 then
+		endGame()
+		return
 	end
 
 	-- update zones

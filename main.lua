@@ -14,6 +14,15 @@ PLAYER_COLORS = {
 	{255,255,0,255}
 }
 
+DEVIL_RADIUS = 20
+DEVIL_LINE_SEGMENTS = 20
+DEVIL_COLOR = {127, 0, 127, 255}
+GAME_OVER_DEVIL_GROWTH_SPEED = 10
+
+HAND_BUFFER = 0
+HAND_HEIGHT = 15
+HAND_RADIAL_WIDTH = math.rad(10)
+
 -- states
 local STATE_MENU = 0
 local STATE_PLAYING = 1
@@ -23,7 +32,10 @@ local Field = require 'field'
 local MusicSystem = require 'musicsystem'
 local Menu = require 'menu'
 
+-- local vars
 local gameState = STATE_MENU
+local screenCapCanvas = love.graphics.newCanvas(WIDTH, HEIGHT)
+local gameOverDevilSize = 0
 
 -- global objects
 field = Field:new(16, 32, MAXRADIUS)
@@ -34,6 +46,7 @@ love.window.setMode(WIDTH, HEIGHT, {
 	vsync = true,
 	fullscreentype = "exclusive"
 })
+love.mouse.setVisible( false )
 love.graphics.setLineJoin('bevel')
 
 local clock = {
@@ -55,8 +68,11 @@ function love.draw()
 		field:draw(clock)
 	elseif gameState == STATE_MENU then
 		menu:draw(clock)
-	else
-		--todo STATE_GAME_OVER
+	elseif gameState == STATE_GAME_OVER then
+		love.graphics.setColor({255, 255, 255, 255})
+		love.graphics.draw(screenCapCanvas)
+		love.graphics.setColor(DEVIL_COLOR)
+		love.graphics.circle('fill', WIDTH / 2, HEIGHT / 2, gameOverDevilSize)
 	end
 end
 
@@ -112,7 +128,11 @@ function love.update(dt)
 	elseif gameState == STATE_MENU then
 		menu:update(dt, clock)
 	else
-		--todo STATE_GAME_OVER
+		gameOverDevilSize = gameOverDevilSize + GAME_OVER_DEVIL_GROWTH_SPEED
+		if gameOverDevilSize > math.max(WIDTH, HEIGHT) then
+			gameState = STATE_MENU
+			gameOverDevilSize = 0
+		end
 	end
 
 	if love.keyboard.isDown('escape') then
@@ -128,6 +148,15 @@ end
 function startGame()
 	gameState = STATE_PLAYING
 	field:setPlayers(menu.players)
+	menu:clearPlayers()
+end
+
+function endGame()
+	love.graphics.setCanvas(screenCapCanvas)
+		love.graphics.clear()
+		field:draw(clock)
+	love.graphics.setCanvas()
+	gameState = STATE_GAME_OVER
 end
 
 -- debug
@@ -142,7 +171,7 @@ function love.keypressed(key)
 		musicsystem:adjustDown()
 	end
 
-	if key == "o" then
+	if key == "i" then
 		menu:addCredit()
 	end
 
@@ -169,6 +198,10 @@ function love.keypressed(key)
 			menu:addPlayer(i)
 		end
 		startGame()
+	end
+
+	if key == '-' then
+		field:killPlayers()
 	end
 
 	io.flush()

@@ -21,6 +21,9 @@ function Ship:initialize(number, color, startAngle, keys)
 end
 
 function Ship:draw()
+	if not self:isAlive() then
+		return
+	end
 	local point = {
 		x = field.center.x + (math.cos(self.angle) * (field.maxRadius / 2 + SHIP_BUFFER)),
 		y = field.center.y + (math.sin(self.angle) * (field.maxRadius / 2 + SHIP_BUFFER))
@@ -49,7 +52,14 @@ function Ship:draw()
 	})
 end
 
+function Ship:isAlive()
+	return self.lives > 0
+end
+
 function Ship:update(dt, clock)
+	if not self:isAlive() then
+		return
+	end
 
 	if (love.keyboard.isDown(self.keys.f)) then
 		field:fill(dt, self)

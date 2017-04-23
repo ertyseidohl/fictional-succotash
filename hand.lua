@@ -1,13 +1,7 @@
 local Hand = class('Hand')
 
-local HAND_BUFFER = 0
-local HAND_HEIGHT = 15
-local HAND_RADIAL_WIDTH = math.rad(10)
-
 function Hand:initialize(devil, angle)
 	self.angle = angle
-	self.color = devil.color
-
 	-- to pretent this is a ship
 	self.number = 666
 end
@@ -37,6 +31,7 @@ function Hand:draw()
 		y = point.y - (math.sin(self.angle - HAND_RADIAL_WIDTH) * HAND_HEIGHT),
 	}
 
+	love.graphics.setColor(unpack(DEVIL_COLOR))
 	love.graphics.polygon('fill', {
 		leftArm.x, leftArm.y,
 		point.x, point.y,

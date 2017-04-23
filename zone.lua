@@ -131,7 +131,7 @@ function Zone:update(dt, clock)
 	for k, pulse in pairs(self.pulses) do
 		pulse:update(dt)
 
-		if pulse.fillAmmount < 0 then
+		if pulse.fillAmount < 0 then
 			table.remove(self.pulses, k)
 
 		elseif clock['is_on_quarter'] and pulse:isFilled() then

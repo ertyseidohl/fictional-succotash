@@ -24,6 +24,17 @@ function PlayerSystem:addPlayer(player)
 	then
 		self:setPlayerState(player, PLAYER_STATE_ALIVE)
 	end
+
+	if self.playerStates[player] == PLAYER_STATE_CONTINUE and
+		self:removeCredit()
+	then
+		self:setPlayerState(player, PLAYER_STATE_ALIVE)
+		field:addShip(player)
+		self.playerCountdowns[player] = 0
+		if gameState == STATE_GAME_OVER then
+			resurrectGame()
+		end
+	end
 end
 
 function PlayerSystem:draw()

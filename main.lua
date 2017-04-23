@@ -180,6 +180,11 @@ function backToMenu()
 	field:clear()
 end
 
+function resurrectGame()
+	gameState = STATE_PLAYING
+	gameOverDevilSize = 0
+end
+
 -- debug
 function love.keypressed(key)
 	if debug_print_keypresses then

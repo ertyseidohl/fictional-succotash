@@ -6,6 +6,14 @@ local Devil = require 'devil'
 
 local RADIAL_WIDTH_HALF = (math.pi * 2 / 32) / 2
 
+local GRID_COLORS = {
+	{255, 178, 174}, -- pastel red
+	{225, 239, 255}, -- pastel blue
+	{239, 255, 225}, -- pastel green
+	{254, 255, 225}, -- pastel yellow
+}
+local INNER_RINGS = 3
+
 function Field:initialize(rings, slices, maxRadius)
 	self.rings = rings
 	self.slices = slices
@@ -22,14 +30,16 @@ function Field:initialize(rings, slices, maxRadius)
 		y = HEIGHT / 2
 	}
 
+
 	self.devil = Devil:new(self)
 
+
+	self.radiusIncrement = (self.maxRadius / self.rings) * 0.5
 	self.radialWidth = (2 * math.pi) / self.slices
 	self:generateZones()
 end
 
 function Field:generateZones()
-	local radiusIncrement = (self.maxRadius / self.rings) * 0.5
 	for ring = 1, self.rings, 1 do
 		for slice = 1, self.slices, 1 do
 			--love.event.quit()
@@ -39,8 +49,8 @@ function Field:generateZones()
 				self.center,
 				(slice - 1) * self.radialWidth,
 				(slice) * self.radialWidth,
-				(ring - 1) * radiusIncrement,
-				(ring) * radiusIncrement,
+				(ring - 1) * self.radiusIncrement,
+				(ring) * self.radiusIncrement,
 				false
 			))
 		end
@@ -78,7 +88,8 @@ end
 
 function Field:draw(clock)
 
-	--self:draw
+	self:drawRadials(clock)
+	self:drawCircles(clock)
 
 	self.devil:draw(clock)
 
@@ -88,6 +99,32 @@ function Field:draw(clock)
 	for _, ship in pairs(self.ships) do
 		ship:draw(clock)
 	end
+end
+
+function Field:drawRadials(clock)
+
+	local flash = 100
+	-- if clock.sixteenth_count % 4 == 0 and clock.sixteenth_count % 8 == 0 then
+	-- 	flash = 140
+	-- end
+
+	for slice = 1, self.slices, 1 do
+		local outerZone = self:getZone(self.rings, slice)
+		local innerZone = self:getZone(INNER_RINGS, slice)
+		love.graphics.setColor(255, 255, 255, flash)
+		love.graphics.line(innerZone.right.inner.x, innerZone.right.inner.y, outerZone.right.outer.x, outerZone.right.outer.y)
+	end
+
+end
+
+function Field:drawCircles(clock)
+    for ring = math.max(INNER_RINGS - 1, 1), self.rings, 1 do
+    	local zoneRing = self:getZone(ring, 1)
+    	local color = GRID_COLORS[((-clock.eighth_count + ring) % 4) + 1]
+    	color[4] = 255 - (self.rings - ring) * 10
+    	love.graphics.setColor(unpack(color))
+    	love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, SEGMENTS)
+    end
 end
 
 function Field:update(dt, clock)

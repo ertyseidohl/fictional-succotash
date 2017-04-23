@@ -1,22 +1,30 @@
 local Hand = class('Hand')
 
-local HAND_BUFFER = 5
-local HAND_HEIGHT = 30
-local HAND_RADIAL_WIDTH = math.deg(1)
+local HAND_BUFFER = 0
+local HAND_HEIGHT = 15
+local HAND_RADIAL_WIDTH = math.rad(10)
 
-function Hand:initialize(angle)
+function Hand:initialize(devil, angle)
 	self.angle = angle
+	self.color = devil.color
+
+	-- to pretent this is a ship
+	self.number = 666
 end
 
-function Hand:update()
+function Hand:update(dt, clock)
 	self.angle = self.angle + 0.001
+
+	if (love.keyboard.isDown('w')) then
+		field:fill(dt, self, true)
+	end
 end
 
 function Hand:draw()
-	local innerRadius = field.radiusIncrement * INNER_RINGS
+	local innerRadius = field.radiusIncrement * (INNER_RINGS - 1)
 	local point = {
-		x = field.center.x + (math.cos(self.angle) * (innerRadius + HAND_BUFFER)),
-		y = field.center.y + (math.sin(self.angle) * (innerRadius + HAND_BUFFER))
+		x = field.center.x + (math.cos(self.angle) * (innerRadius - HAND_BUFFER)),
+		y = field.center.y + (math.sin(self.angle) * (innerRadius - HAND_BUFFER))
 	}
 
 	local leftArm = {

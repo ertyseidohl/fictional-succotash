@@ -84,10 +84,13 @@ function Zone:update(dt, clock)
 			local nextRing = self.ring + pulse.direction
 			local nextSlice = self.slice
 			if nextRing < INNER_RINGS or
-				field:getZone(nextRing, nextSlice):getPulse() ~= nil
+				(
+					not self.isBlast and
+					field:getZone(nextRing, nextSlice):getPulse() ~= nil
+				)
 			then
 				self:putPulse(pulse)
-			else
+			elseif not self.isBlast then
 				local zone = field:getZone(nextRing, nextSlice)
 				zone:putPulse(pulse)
 			end
@@ -141,9 +144,9 @@ function Zone:getPulse()
 	return self.pulses[next(self.pulses)]
 end
 
-function Zone:fill(dt, ship)
+function Zone:fill(dt, ship, fromInner)
 	if self.pulses[ship.number] == nil then
-		self.pulses[ship.number] = Pulse:new(ship, FILL_SPEED, self.startRadians)
+		self.pulses[ship.number] = Pulse:new(ship, FILL_SPEED, self.startRadians, fromInner)
 	end
 	self.pulses[ship.number]:fill(dt)
 end

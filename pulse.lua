@@ -1,11 +1,15 @@
 local Pulse = class('Pulse')
 
-function Pulse:initialize(ship, fillTarget, angle)
+function Pulse:initialize(ship, fillTarget, angle, fromInner)
 	self.ship = ship
 	self.fillAmount = 0
 	self.fillTarget = fillTarget
 	self.angle = angle
-	self.direction = -1
+	if fromInner then
+		self.direction = 1
+	else
+		self.direction = -1
+	end
 end
 
 function Pulse:update(dt)

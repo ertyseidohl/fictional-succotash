@@ -77,9 +77,14 @@ function Field:getZone(ring, slice)
 	return self.zones[index]
 end
 
-function Field:fill(dt, ship)
-	local zone = self:getZone(self.rings, math.ceil(ship.angle / self.radialWidth))
-	zone:fill(dt, ship)
+function Field:fill(dt, ship, fromInner)
+	local zone = nil
+	if (fromInner) then
+		zone = self:getZone(INNER_RINGS, math.ceil(ship.angle / self.radialWidth))
+	else
+		zone = self:getZone(self.rings, math.ceil(ship.angle / self.radialWidth))
+	end
+	zone:fill(dt, ship, fromInner)
 end
 
 function Field:draw(clock)

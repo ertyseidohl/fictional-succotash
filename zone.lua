@@ -2,9 +2,9 @@ local Zone = class('Zone')
 
 local Pulse = require 'pulse'
 
-local SEGMENTS = 5
+local SEGMENTS = 12
 
-function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRadius, outerRadius)
+function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRadius, outerRadius, isBlast)
 	self.center = center
 	self.startRadians = startRadians
 	self.endRadians = endRadians
@@ -12,6 +12,7 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 	self.outerRadius = outerRadius
 	self.ring = ring
 	self.slice = slice
+	self.isBlast = isBlast
 
 	if ring == 1 then
 		innerRadius = 5 + ((slice % 3) * 3)
@@ -111,9 +112,12 @@ function Zone:draw(clock)
 		end
 		love.graphics.setLineWidth(oldLineWidth)
 	end
-	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.line(self.left.inner.x, self.left.inner.y, self.left.outer.x, self.left.outer.y)
-	love.graphics.line(self.right.inner.x, self.right.inner.y, self.right.outer.x, self.right.outer.y)
+
+	if not self.isBlast then
+		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.line(self.left.inner.x, self.left.inner.y, self.left.outer.x, self.left.outer.y)
+		love.graphics.line(self.right.inner.x, self.right.inner.y, self.right.outer.x, self.right.outer.y)
+	end
 end
 
 function Zone:update(dt, clock)
@@ -200,11 +204,24 @@ function Zone:putPulse(pulse)
 	self.nextPulses[pulse.ship.number] = pulse
 end
 
+function Zone:hasEnemyPulse(ship)
+	for _, pulse in pairs(self.pulses) do
+		if pulse.ship.number ~= ship.number then
+			return true
+		end
+	end
+	return false
+end
+
 function Zone:fill(dt, ship)
 	if self.pulses[ship.number] == nil then
 		self.pulses[ship.number] = Pulse:new(ship, 2 / BPS, self.startRadians)
 	end
 	self.pulses[ship.number]:fill(dt)
+end
+
+function Zone:contains(angle)
+	return self.startRadians < angle and self.endRadians > angle
 end
 
 return Zone

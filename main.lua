@@ -6,20 +6,12 @@ local Ship = require 'ship'
 -- globals
 WIDTH = 800
 HEIGHT = 600
-MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.75
+MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
 field = Field:new(4, 32, MAXRADIUS)
 BPM = 150
 BPS = BPM / 60
 
-local radialWidthHalf = (math.pi * 2 / 32) / 2
-
-local things = {
-	field,
-	Ship:new(1, {255,0,0,255}, radialWidthHalf, {cc = 'z', c = 'x'}),
-	Ship:new(2, {0,0,255,255}, math.pi + radialWidthHalf, {cc = 'c', c = 'v'}),
-	Ship:new(3, {0,255,0,255}, math.pi * 0.5 + radialWidthHalf, {cc = 'b', c = 'n'}),
-	Ship:new(4, {255,255,0,255}, math.pi * 1.5 + radialWidthHalf, {cc = 'm', c = ','})
-}
+love.graphics.setLineJoin('bevel')
 
 local clock = {
 	quarter_count = -1,
@@ -32,10 +24,7 @@ local clock = {
 debug_print_keypresses = false
 
 function love.draw()
-	--love.graphics.clear()
-	for _, thing in pairs(things) do
-		thing:draw(clock)
-	end
+	field:draw(clock)
 end
 
 function love.update(dt)
@@ -75,9 +64,7 @@ function love.update(dt)
 
 	clock = next_clock
 
-	for _, thing in pairs(things) do
-		thing:update(dt, clock)
-	end
+	field:update(dt, clock)
 
 	if love.keyboard.isDown('escape') then
 		love.event.quit()

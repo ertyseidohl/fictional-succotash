@@ -202,7 +202,6 @@ end
 function fireAttack(clock, hand)
 	if clock.is_on_quarter then
 		hand:fire()
-		print('fire!')
 	end
 end
 

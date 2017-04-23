@@ -2,6 +2,7 @@ local Field = class('Field')
 
 local Zone = require 'zone'
 local Ship = require 'ship'
+local Devil = require 'devil'
 
 local RADIAL_WIDTH_HALF = (math.pi * 2 / 32) / 2
 
@@ -11,15 +12,17 @@ function Field:initialize(rings, slices, maxRadius)
 	self.maxRadius = maxRadius
 	self.zones = {}
 	self.ships = {
-		Ship:new(1, {255,0,0,255}, RADIAL_WIDTH_HALF, {cc = 'z', c = 'x'}),
-		Ship:new(2, {0,0,255,255}, math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v'}),
-		-- Ship:new(3, {0,255,0,255}, math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n'}),
-		-- Ship:new(4, {255,255,0,255}, math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ','})
+		Ship:new(1, {255,0,0,255}, RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'}),
+		Ship:new(2, {0,0,255,255}, math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'}),
+		--Ship:new(3, {0,255,0,255}, math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'}),
+		Ship:new(4, {255,255,0,255}, math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'})
 	}
 	self.center = {
 		x = WIDTH / 2,
 		y = HEIGHT / 2
 	}
+
+	self.devil = Devil:new(self)
 
 	self.radialWidth = (2 * math.pi) / self.slices
 	self:generateZones()
@@ -77,6 +80,8 @@ function Field:draw(clock)
 
 	--self:draw
 
+	self.devil:draw(clock)
+
 	for _, zone in pairs(self.zones) do
 		zone:draw(clock)
 	end
@@ -86,6 +91,9 @@ function Field:draw(clock)
 end
 
 function Field:update(dt, clock)
+	-- update devil
+	self.devil:update(dt, clock)
+
 	-- update ships
 	for _, ship in pairs(self.ships) do
 		ship:update(dt, clock)

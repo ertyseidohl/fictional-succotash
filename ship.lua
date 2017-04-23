@@ -51,8 +51,9 @@ end
 
 function Ship:update(dt, clock)
 
-	-- TODO button press
-	field:fill(dt, self)
+	if (love.keyboard.isDown(self.keys.f)) then
+		field:fill(dt, self)
+	end
 
 	if love.keyboard.isDown(self.keys.c) then
 		self.velocity = self.velocity + SHIP_ACCELERATION

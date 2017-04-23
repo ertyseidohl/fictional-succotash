@@ -1,14 +1,13 @@
 class = require 'lib/middleclass'
 
 -- globals
-BPM = 150
+BPM = 300
 BPS = BPM / 60
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 1366
+HEIGHT = 768
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
 
 local Field = require 'field'
-local Ship = require 'ship'
 local MusicSystem = require 'musicsystem'
 
 -- global field

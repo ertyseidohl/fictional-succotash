@@ -2,7 +2,7 @@ local Pulse = class('Pulse')
 
 function Pulse:initialize(ship, fillTarget, angle)
 	self.ship = ship
-	self.fillAmmount = 0
+	self.fillAmount = 0
 	self.fillTarget = fillTarget
 	self.angle = angle
 	self.direction = -1
@@ -13,19 +13,19 @@ function Pulse:update(dt)
 		return
 	end
 
-	self.fillAmmount = self.fillAmmount - dt
+	self.fillAmount = self.fillAmount - dt
 end
 
 function Pulse:fill(dt)
-	self.fillAmmount = self.fillAmmount + (2 * dt)
+	self.fillAmount = self.fillAmount + (2 * dt)
 end
 
 function Pulse:isFilled()
-	return self.fillAmmount > self.fillTarget
+	return self.fillAmount > self.fillTarget
 end
 
 function Pulse:getPercentFilled()
-	return self.fillAmmount / self.fillTarget
+	return self.fillAmount / self.fillTarget
 end
 
 function Pulse:reverseDirection()

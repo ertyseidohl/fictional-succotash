@@ -5,22 +5,20 @@ local Ship = require 'ship'
 local MusicSystem = require 'musicsystem'
 
 -- globals
-WIDTH = 800
-HEIGHT = 600
-MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.75
-field = Field:new(4, 32, MAXRADIUS)
 BPM = 150
 BPS = BPM / 60
+WIDTH = 800
+HEIGHT = 600
+MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
 
-local radialWidthHalf = (math.pi * 2 / 32) / 2
+local Field = require 'field'
+local Ship = require 'ship'
 
-local things = {
-	field,
-	Ship:new(1, {255,0,0,255}, radialWidthHalf, {cc = 'z', c = 'x'}),
-	Ship:new(2, {0,0,255,255}, math.pi + radialWidthHalf, {cc = 'c', c = 'v'}),
-	Ship:new(3, {0,255,0,255}, math.pi * 0.5 + radialWidthHalf, {cc = 'b', c = 'n'}),
-	Ship:new(4, {255,255,0,255}, math.pi * 1.5 + radialWidthHalf, {cc = 'm', c = ','})
-}
+-- global field
+field = Field:new(16, 32, MAXRADIUS)
+
+
+love.graphics.setLineJoin('bevel')
 
 local clock = {
 	quarter_count = -1,
@@ -37,10 +35,7 @@ local musicsystem = nil
 debug_print_keypresses = false
 
 function love.draw()
-	--love.graphics.clear()
-	for _, thing in pairs(things) do
-		thing:draw(clock)
-	end
+	field:draw(clock)
 end
 
 function love.load() 
@@ -91,9 +86,7 @@ function love.update(dt)
 
 	clock = next_clock
 
-	for _, thing in pairs(things) do
-		thing:update(dt, clock)
-	end
+	field:update(dt, clock)
 
 	if love.keyboard.isDown('escape') then
 		love.event.quit()

@@ -23,15 +23,16 @@ SOFTWARE.
 ]]--
 
 local GL_SHADER_SOURCE = [[
-		extern vec2 direction;
-		extern number radius;
-		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
+		uniform vec2 direction;
+		uniform float radius;
+
+		vec4 effect(vec4 color, sampler2D texture, vec2 tc, vec2 _)
 		{
 			vec4 c = vec4(0.0f);
 
 			for (float i = -radius; i <= radius; i += 1.0f)
 			{
-				c += Texel(texture, tc + i * direction);
+				c += texture2D(texture, tc + i * direction);
 			}
 			return c / (2.0f * radius + 1.0f) * color;
 		}

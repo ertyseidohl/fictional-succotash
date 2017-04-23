@@ -1,9 +1,5 @@
 class = require 'lib/middleclass'
 
-local Field = require 'field'
-local Ship = require 'ship'
-local MusicSystem = require 'musicsystem'
-
 -- globals
 BPM = 150
 BPS = BPM / 60
@@ -13,6 +9,7 @@ MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
 
 local Field = require 'field'
 local Ship = require 'ship'
+local MusicSystem = require 'musicsystem'
 
 -- global field
 field = Field:new(16, 32, MAXRADIUS)

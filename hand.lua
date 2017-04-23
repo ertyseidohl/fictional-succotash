@@ -8,11 +8,11 @@ function Hand:initialize(devil, angle)
 end
 
 function Hand:update(dt, clock)
-	self.angle = self.angle + 0.001
 
-	if (love.keyboard.isDown('w')) then
-		field:fill(dt, self, true)
-	end
+end
+
+function Hand:fire()
+	field:fill(100, self, true)
 end
 
 function Hand:draw()

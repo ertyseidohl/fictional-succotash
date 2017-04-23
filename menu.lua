@@ -18,6 +18,11 @@ function Menu:draw()
 			love.graphics.rectangle('fill', (player - 1) * WIDTH / 4, 0, WIDTH / 4, HEIGHT)
 		end
 	end
+
+	-- debug
+	love.graphics.print("` to jump in with 4 players", 100, 300)
+	love.graphics.print("o to add quarter", 100, 350)
+	love.graphics.print("1,2,3,4 to add player (with credit)", 100, 400)
 end
 
 function Menu:addCredit()

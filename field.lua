@@ -44,7 +44,7 @@ end
 function Field:buildShips(players)
 	--players is an array of 4 bools
 	for i = 1, 4, 1 do
-		if players[i] then
+		if players[i] == PLAYER_STATE_ALIVE then
 			self:addShip(i)
 		end
 	end
@@ -55,6 +55,7 @@ function Field:killPlayers()
 	for i = 1, 4, 1 do
 		if self.ships[i] then
 			self.ships[i].lives = 0
+			playerSystem:notifyOfDeath(i)
 		end
 	end
 end
@@ -140,18 +141,16 @@ function Field:update(dt, clock)
 	self.devil:update(dt, clock)
 
 	-- update ships
-	local aliveShips = 0
 	for i = 1, 4, 1 do
-		if (self.ships[i]) then
+		if self.ships[i] and playerSystem.playerStates[i] == PLAYER_STATE_ALIVE then
 			self.ships[i]:update(dt, clock)
-			if self.ships[i]:isAlive() then
-				aliveShips = aliveShips + 1
+			if not self.ships[i]:isAlive() then
+				playerSystem:notifyOfDeath(i)
 			end
 		end
 	end
-	if aliveShips == 0 then
+	if playerSystem:getAlivePlayerCount() == 0 then
 		endGame()
-		return
 	end
 
 	-- pre update zones

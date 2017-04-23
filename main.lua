@@ -13,6 +13,7 @@ PLAYER_COLORS = {
 	{0,255,0,255},
 	{255,255,0,255}
 }
+TEXT_COLOR = {255, 255, 255, 255}
 
 DEVIL_RADIUS = 20
 DEVIL_LINE_SEGMENTS = 20
@@ -26,22 +27,27 @@ HAND_RADIAL_WIDTH = math.rad(10)
 GAME_OVER_COUNTDOWN_MAX = 10
 
 -- states
-local STATE_MENU = 0
-local STATE_PLAYING = 1
-local STATE_GAME_OVER = 2
+STATE_MENU = 0
+STATE_PLAYING = 1
+STATE_GAME_OVER = 2
+
+PLAYER_STATE_NONE = 4
+PLAYER_STATE_ALIVE = 1
+PLAYER_STATE_CONTINUE = 2
 
 local Field = require 'field'
 local MusicSystem = require 'musicsystem'
 local Menu = require 'menu'
+local PlayerSystem = require 'playersystem'
 
 -- local vars
-local gameState = STATE_MENU
 local screenCapCanvas = love.graphics.newCanvas(WIDTH, HEIGHT)
 local gameOverDevilSize = 0
-local gameOverCountdown = GAME_OVER_COUNTDOWN_MAX
 
 -- global objects
+gameState = STATE_MENU
 field = Field:new(16, 32, MAXRADIUS)
+playerSystem = PlayerSystem:new()
 menu = Menu:new()
 
 love.window.setMode(WIDTH, HEIGHT, {
@@ -76,9 +82,9 @@ function love.draw()
 		love.graphics.draw(screenCapCanvas)
 		love.graphics.setColor(DEVIL_COLOR)
 		love.graphics.circle('fill', WIDTH / 2, HEIGHT / 2, gameOverDevilSize)
-		love.graphics.setColor({255,255,255,255})
-		love.graphics.print(gameOverCountdown, WIDTH / 2, HEIGHT / 2)
 	end
+
+	playerSystem:draw(clock)
 end
 
 function love.load()
@@ -95,6 +101,7 @@ function love.update(dt)
 	--local nextClockTime = clock.time + dt
 	local nextClockTime = musicsystem:update(dt)
 	local next_clock = {
+		full_count = math.floor(nextClockTime * BPS / 4),
 		half_count = math.floor(nextClockTime * BPS / 2) % 2,
 		quarter_count = math.floor(nextClockTime * BPS) % 4,
 		eighth_count = math.floor(nextClockTime * BPS * 2) % 8,
@@ -126,32 +133,27 @@ function love.update(dt)
 		next_clock['is_on_half'] = false;
 	end
 
+	if next_clock['full_count'] ~= clock['full_count'] then
+		next_clock['is_on_full'] = true;
+	else
+		next_clock['is_on_full'] = false;
+	end
+
 	clock = next_clock
 
 	if gameState == STATE_PLAYING then
 		field:update(dt, clock)
 	elseif gameState == STATE_MENU then
 		menu:update(dt, clock)
-	else
-		if gameOverDevilSize < math.max(WIDTH, HEIGHT) then
-			gameOverDevilSize = gameOverDevilSize + GAME_OVER_DEVIL_GROWTH_SPEED
-		end
-
-		if clock.is_on_half then
-			gameOverCountdown = gameOverCountdown - 1
-		end
-
-		if gameOverCountdown == 0 then
-			field:clear()
-			gameOverCountdown = GAME_OVER_COUNTDOWN_MAX
-			gameState = STATE_MENU
-			gameOverDevilSize = 0
-		end
+	elseif gameState == STATE_GAME_OVER then
+		gameOverDevilSize = gameOverDevilSize + GAME_OVER_DEVIL_GROWTH_SPEED
 	end
 
 	if love.keyboard.isDown('escape') then
 		love.event.quit()
 	end
+
+	playerSystem:update(dt, clock)
 
 	--debug
 	if love.keyboard.isDown('p') then
@@ -161,8 +163,7 @@ end
 
 function startGame()
 	gameState = STATE_PLAYING
-	field:buildShips(menu.players)
-	menu:clearPlayers()
+	field:buildShips(playerSystem.playerStates)
 end
 
 function endGame()
@@ -171,6 +172,17 @@ function endGame()
 		field:draw(clock)
 	love.graphics.setCanvas()
 	gameState = STATE_GAME_OVER
+end
+
+function backToMenu()
+	gameState = STATE_MENU
+	gameOverDevilSize = 0
+	field:clear()
+end
+
+function resurrectGame()
+	gameState = STATE_PLAYING
+	gameOverDevilSize = 0
 end
 
 -- debug
@@ -186,30 +198,30 @@ function love.keypressed(key)
 	end
 
 	if key == "i" then
-		menu:addCredit()
+		playerSystem:addCredit()
 	end
 
 	if key == "1" then
-		menu:addPlayer(1)
+		playerSystem:addPlayer(1)
 	elseif key == "2" then
-		menu:addPlayer(2)
+		playerSystem:addPlayer(2)
 	elseif key == "3" then
-		menu:addPlayer(3)
+		playerSystem:addPlayer(3)
 	elseif key == "4" then
-		menu:addPlayer(4)
+		playerSystem:addPlayer(4)
 	end
 
 	if key == 'g' then
 		-- if we have at least one player we can start
-		if menu:hasPlayers() then
+		if playerSystem:hasPlayers() then
 			startGame()
 		end
 	end
 
 	if key == "space" then
 		for i = 1, 4, 1 do
-			menu:addCredit()
-			menu:addPlayer(i)
+			playerSystem:addCredit()
+			playerSystem:addPlayer(i)
 		end
 		startGame()
 	end

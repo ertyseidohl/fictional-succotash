@@ -23,17 +23,9 @@ SOFTWARE.
 ]]--
 
 local GL_SHADER_SOURCE = [[
-		extern vec2 direction;
-		extern number radius;
 		vec4 effect(vec4 color, Image texture, vec2 tc, vec2 _)
 		{
-			vec4 c = vec4(0.0f);
-
-			for (float i = -radius; i <= radius; i += 1.0f)
-			{
-				c += Texel(texture, tc + i * direction);
-			}
-			return c / (2.0f * radius + 1.0f) * color;
+			return color;
 		}
 	]]
 
@@ -46,7 +38,7 @@ new = function(self)
 	self.shader = love.graphics.newShader(GL_SHADER_SOURCE)
 	warnings = self.shader:getWarnings( )
 	print("GL issues: " .. warnings)
-	self.shader:send("direction",{1.0,0.0}) --Not needed but may fix some errors if the shader is used somewhere else
+	--self.shader:send("direction",{1.0,0.0}) --Not needed but may fix some errors if the shader is used somewhere else
 end,
 
 draw = function(self, func, ...)
@@ -63,14 +55,14 @@ draw = function(self, func, ...)
 	love.graphics.setBlendMode('alpha', 'premultiplied')
 
 	-- first pass (horizontal blur)
-	self.shader:send('direction', {1 / love.graphics.getWidth(), 0})
-	self.shader:send('radius', math.floor(self.radius_h + .5))
+	--self.shader:send('direction', {1 / love.graphics.getWidth(), 0})
+	--self.shader:send('radius', math.floor(self.radius_h + .5))
 	self:_render_to_canvas(self.canvas_v,
 	                       love.graphics.draw, self.canvas_h, 0,0)
 
 	-- second pass (vertical blur)
-	self.shader:send('direction', {0, 1 / love.graphics.getHeight()})
-	self.shader:send('radius', math.floor(self.radius_v + .5))
+	--self.shader:send('direction', {0, 1 / love.graphics.getHeight()})
+	--self.shader:send('radius', math.floor(self.radius_v + .5))
 	love.graphics.draw(self.canvas_v, 0,0)
 
 	-- restore blendmode, shader and canvas

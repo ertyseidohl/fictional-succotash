@@ -15,7 +15,7 @@ function Field:initialize(rings, slices, maxRadius)
 	self.slices = slices
 	self.maxRadius = maxRadius
 	self.zones = {}
-	self.ships = {}
+	self.ships = {nil, nil, nil, nil}
 	self.center = {
 		x = WIDTH / 2,
 		y = HEIGHT / 2
@@ -26,25 +26,36 @@ function Field:initialize(rings, slices, maxRadius)
 	self:generateZones()
 end
 
-function Field:setPlayers(players)
+function Field:addShip(player)
+	if player == 1 then
+		self.ships[1] = Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'})
+	end
+	if player == 2 then
+		self.ships[2] = Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'})
+	end
+	if player == 3 then
+		self.ships[3] = Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'})
+	end
+	if player == 4 then
+		self.ships[4] = Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'})
+	end
+end
+
+function Field:buildShips(players)
 	--players is an array of 4 bools
-	if players[1] then
-		table.insert(self.ships, Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'}))
-	end
-	if players[2] then
-		table.insert(self.ships, Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'}))
-	end
-	if players[3] then
-		table.insert(self.ships, Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'}))
-	end
-	if players[4] then
-		table.insert(self.ships, Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'}))
+	for i = 1, 4, 1 do
+		if players[i] then
+			self:addShip(i)
+		end
 	end
 end
 
 function Field:killPlayers()
-	for i = 1, #self.ships, 1 do
-		self.ships[i].lives = 0
+	-- for debugging
+	for i = 1, 4, 1 do
+		if self.ships[i] then
+			self.ships[i].lives = 0
+		end
 	end
 end
 
@@ -130,10 +141,12 @@ function Field:update(dt, clock)
 
 	-- update ships
 	local aliveShips = 0
-	for _, ship in pairs(self.ships) do
-		ship:update(dt, clock)
-		if ship:isAlive() then
-			aliveShips = aliveShips + 1
+	for i = 1, 4, 1 do
+		if (self.ships[i]) then
+			self.ships[i]:update(dt, clock)
+			if self.ships[i]:isAlive() then
+				aliveShips = aliveShips + 1
+			end
 		end
 	end
 	if aliveShips == 0 then
@@ -154,13 +167,20 @@ function Field:update(dt, clock)
 	-- check for collisons
 	for _, zone in pairs(self.zones) do
 		if zone.isBlast and zone:getPulse() ~= nil then
-			for _, ship in pairs(self.ships) do
-				if zone:contains(ship.angle) then
-					ship:loseLife()
+			for i = 1, 4, 1 do
+				if self.ships[i] and
+					zone:contains(self.ships[i].angle)
+				then
+					self.ships[i]:loseLife()
 				end
 			end
 		end
 	end
+end
+
+function Field:clear()
+	self.zones = {}
+	self:generateZones()
 end
 
 return Field

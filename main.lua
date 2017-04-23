@@ -23,6 +23,8 @@ HAND_BUFFER = 0
 HAND_HEIGHT = 15
 HAND_RADIAL_WIDTH = math.rad(10)
 
+GAME_OVER_COUNTDOWN_MAX = 10
+
 -- states
 local STATE_MENU = 0
 local STATE_PLAYING = 1
@@ -36,6 +38,7 @@ local Menu = require 'menu'
 local gameState = STATE_MENU
 local screenCapCanvas = love.graphics.newCanvas(WIDTH, HEIGHT)
 local gameOverDevilSize = 0
+local gameOverCountdown = GAME_OVER_COUNTDOWN_MAX
 
 -- global objects
 field = Field:new(16, 32, MAXRADIUS)
@@ -73,6 +76,8 @@ function love.draw()
 		love.graphics.draw(screenCapCanvas)
 		love.graphics.setColor(DEVIL_COLOR)
 		love.graphics.circle('fill', WIDTH / 2, HEIGHT / 2, gameOverDevilSize)
+		love.graphics.setColor({255,255,255,255})
+		love.graphics.print(gameOverCountdown, WIDTH / 2, HEIGHT / 2)
 	end
 end
 
@@ -128,8 +133,17 @@ function love.update(dt)
 	elseif gameState == STATE_MENU then
 		menu:update(dt, clock)
 	else
-		gameOverDevilSize = gameOverDevilSize + GAME_OVER_DEVIL_GROWTH_SPEED
-		if gameOverDevilSize > math.max(WIDTH, HEIGHT) then
+		if gameOverDevilSize < math.max(WIDTH, HEIGHT) then
+			gameOverDevilSize = gameOverDevilSize + GAME_OVER_DEVIL_GROWTH_SPEED
+		end
+
+		if clock.is_on_half then
+			gameOverCountdown = gameOverCountdown - 1
+		end
+
+		if gameOverCountdown == 0 then
+			field:clear()
+			gameOverCountdown = GAME_OVER_COUNTDOWN_MAX
 			gameState = STATE_MENU
 			gameOverDevilSize = 0
 		end
@@ -147,7 +161,7 @@ end
 
 function startGame()
 	gameState = STATE_PLAYING
-	field:setPlayers(menu.players)
+	field:buildShips(menu.players)
 	menu:clearPlayers()
 end
 

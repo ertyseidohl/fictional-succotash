@@ -69,6 +69,8 @@ field = Field:new(16, 32, MAXRADIUS)
 playerSystem = PlayerSystem:new()
 menu = Menu:new()
 
+name, version, vendor, device = love.graphics.getRendererInfo()
+
 love.window.setMode(WIDTH, HEIGHT, {
 	fullscreen = true,
 	vsync = true,
@@ -97,6 +99,11 @@ debug_print_keypresses = false
 function love.load()
 	musicsystem = MusicSystem:new()
 	postEffect = Shine.boxblur()
+
+	print(name,5,5)
+	print(version,5,15)
+	print(vendor,5,25)
+	print(device ,5,35)
 
 end
 

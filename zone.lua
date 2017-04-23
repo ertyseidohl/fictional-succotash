@@ -4,6 +4,14 @@ local Pulse = require 'pulse'
 
 local SEGMENTS = 12
 local FILL_SPEED = 0.5 / BPS
+local INNER_RINGS = 2
+
+local GRID_COLORS = {
+	{255, 178, 174, 255}, -- pastel red
+	{225, 239, 255, 255}, -- pastel blue
+	{239, 255, 225, 255}, -- pastel green
+	{254, 255, 225, 255}, -- pastel yellow
+}
 
 function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRadius, outerRadius, isBlast)
 	self.center = center
@@ -49,17 +57,20 @@ end
 
 function Zone:draw(clock)
 	love.graphics.setColor(255,255,255,255)
-	--if next(self.pulses) == nil then
-		love.graphics.arc(
-			'line',
-			'open',
-			self.center.x,
-			self.center.y,
-			self.innerRadius,
-			self.startRadians,
-			self.endRadians,
-			SEGMENTS
-		)
+	if self.ring > INNER_RINGS - 1 then
+
+		-- double_render all the way!
+		-- love.graphics.arc(
+		-- 	'line',
+		-- 	'open',
+		-- 	self.center.x,
+		-- 	self.center.y,
+		-- 	self.innerRadius,
+		-- 	self.startRadians,
+		-- 	self.endRadians,
+		-- 	SEGMENTS
+		-- )
+		love.graphics.setColor(unpack(GRID_COLORS[((clock.eighth_count + self.ring) % 4) + 1]))
 		love.graphics.arc(
 			'line',
 			'open',
@@ -70,6 +81,7 @@ function Zone:draw(clock)
 			self.endRadians,
 			SEGMENTS
 		)
+	end
 
 	local hasPulse = next(self.pulses) ~= nil
 
@@ -125,9 +137,9 @@ function Zone:draw(clock)
 		love.graphics.setLineWidth(oldLineWidth)
 	end
 
-	if not self.isBlast then
-		love.graphics.setColor(255, 255, 255, 255)
-		love.graphics.line(self.left.inner.x, self.left.inner.y, self.left.outer.x, self.left.outer.y)
+	if not self.isBlast and self.ring > INNER_RINGS then
+		love.graphics.setColor(255, 255, 255, 100)
+		--love.graphics.line(self.left.inner.x, self.left.inner.y, self.left.outer.x, self.left.outer.y)
 		love.graphics.line(self.right.inner.x, self.right.inner.y, self.right.outer.x, self.right.outer.y)
 	end
 end

@@ -74,6 +74,9 @@ function Field:fill(dt, ship)
 end
 
 function Field:draw(clock)
+
+	--self:draw
+
 	for _, zone in pairs(self.zones) do
 		zone:draw(clock)
 	end

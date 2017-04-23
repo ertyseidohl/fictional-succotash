@@ -41,9 +41,9 @@ function love.update(dt)
 	}
 
 	if next_clock['sixteenth_count'] ~= clock['sixteenth_count'] then
-		next_clock['sixteenth_count'] = true;
+		next_clock['is_on_sixteenth'] = true;
 	else
-		next_clock['sixteenth_count'] = false;
+		next_clock['is_on_sixteenth'] = false;
 	end
 
 	if next_clock['eighth_count'] ~= clock['eighth_count'] then

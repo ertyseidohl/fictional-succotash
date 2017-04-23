@@ -10,8 +10,8 @@ function Devil:initialize(field)
 	self.center = field.center
 	self.hands = {
 		-- todo more hands
-		Hand:new(),
-		Hand:new()
+		Hand:new(math.deg(90)),
+		Hand:new(math.deg(180))
 	}
 end
 

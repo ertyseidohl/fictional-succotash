@@ -6,6 +6,7 @@ BPS = BPM / 60
 WIDTH = 1366
 HEIGHT = 768
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
+INNER_RINGS = 3
 
 local Field = require 'field'
 local MusicSystem = require 'musicsystem'

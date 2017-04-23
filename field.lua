@@ -4,6 +4,7 @@ local Zone = require 'zone'
 local Ship = require 'ship'
 local Devil = require 'devil'
 
+local LINE_WIDTH = 1
 local RADIAL_WIDTH_HALF = (math.pi * 2 / 32) / 2
 
 local GRID_COLORS = {
@@ -12,7 +13,6 @@ local GRID_COLORS = {
 	{239, 255, 225}, -- pastel green
 	{254, 255, 225}, -- pastel yellow
 }
-local INNER_RINGS = 3
 
 function Field:initialize(rings, slices, maxRadius)
 	self.rings = rings
@@ -29,11 +29,7 @@ function Field:initialize(rings, slices, maxRadius)
 		x = WIDTH / 2,
 		y = HEIGHT / 2
 	}
-
-
 	self.devil = Devil:new(self)
-
-
 	self.radiusIncrement = (self.maxRadius / self.rings) * 0.5
 	self.radialWidth = (2 * math.pi) / self.slices
 	self:generateZones()
@@ -87,7 +83,7 @@ function Field:fill(dt, ship)
 end
 
 function Field:draw(clock)
-
+	love.graphics.setLineWidth(LINE_WIDTH)
 	self:drawRadials(clock)
 	self:drawCircles(clock)
 
@@ -148,15 +144,14 @@ function Field:update(dt, clock)
 
 	-- check for collisons
 	for _, zone in pairs(self.zones) do
-		if zone.isBlast then
+		if zone.isBlast and zone:getPulse() ~= nil then
 			for _, ship in pairs(self.ships) do
-				if zone:contains(ship.angle) and zone:hasEnemyPulse(ship) then
+				if zone:contains(ship.angle) then
 					ship:loseLife()
 				end
 			end
 		end
 	end
-
 end
 
 return Field

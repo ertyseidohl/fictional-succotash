@@ -8,6 +8,8 @@ WIDTH = 800
 HEIGHT = 600
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.75
 field = Field:new(4, 32, MAXRADIUS)
+BPM = 150
+BPS = BPM / 60
 
 local radialWidthHalf = (math.pi * 2 / 32) / 2
 
@@ -18,9 +20,6 @@ local things = {
 	Ship:new(3, {0,255,0,255}, math.pi * 0.5 + radialWidthHalf, {cc = 'b', c = 'n'}),
 	Ship:new(4, {255,255,0,255}, math.pi * 1.5 + radialWidthHalf, {cc = 'm', c = ','})
 }
-
-local bpm = 120
-local bps = (bpm / 60)
 
 local clock = {
 	quarter_count = -1,
@@ -42,10 +41,10 @@ end
 function love.update(dt)
 	local nextClockTime = clock.time + dt
 	local next_clock = {
-		half_count = math.floor(nextClockTime * bps / 2) % 2,
-		quarter_count = math.floor(nextClockTime * bps) % 4,
-		eighth_count = math.floor(nextClockTime * bps * 2) % 8,
-		sixteenth_count = math.floor(nextClockTime * bps * 4) % 16,
+		half_count = math.floor(nextClockTime * BPS / 2) % 2,
+		quarter_count = math.floor(nextClockTime * BPS) % 4,
+		eighth_count = math.floor(nextClockTime * BPS * 2) % 8,
+		sixteenth_count = math.floor(nextClockTime * BPS * 4) % 16,
 		time = nextClockTime
 	}
 

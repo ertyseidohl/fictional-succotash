@@ -185,7 +185,7 @@ end
 
 function Zone:fill(dt, ship)
 	if self.pulses[ship.number] == nil then
-		self.pulses[ship.number] = Pulse:new(ship, 2, self.startRadians)
+		self.pulses[ship.number] = Pulse:new(ship, 2 / BPS, self.startRadians)
 	end
 	self.pulses[ship.number]:fill(dt)
 end

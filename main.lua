@@ -14,7 +14,11 @@ local MusicSystem = require 'musicsystem'
 -- global field
 field = Field:new(16, 32, MAXRADIUS)
 
-
+love.window.setMode(WIDTH, HEIGHT, {
+	fullscreen = true,
+	vsync = true,
+	fullscreentype = "exclusive"
+})
 love.graphics.setLineJoin('bevel')
 
 local clock = {

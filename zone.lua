@@ -40,10 +40,6 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 
 	self.isBlocked = false
 
-	if ring == 2 and slice % 4 == 0 then
-		self.isBlocked = true
-	end
-
 	self.pulses = {}
 	self.nextPulses = {}
 end
@@ -148,17 +144,36 @@ end
 
 function Zone:postUpdate(dt, clock)
 
-	if not self.isBlocked then
-		local cnt = 0;
-		for k, pulse in pairs(self.nextPulses) do
-			cnt = cnt + 1
-		end
+	if self.isBlocked then
+		self.nextPulses = {}
+		self.pulses = {}
+	end
 
-		if cnt > 2 then
-			self.isBlocked = true
-		else
-			self.pulses = self.nextPulses;
+
+	local nextPulsesCount = 0
+	local nextPulsesKey = 0
+
+	for k, pulse in pairs(self.nextPulses) do
+		nextPulsesCount = nextPulsesCount + 1
+		nextPulsesKey = k
+	end
+
+	--two or more pulses will colide
+	if nextPulsesCount > 1 then
+		self.isBlocked = true
+	elseif nextPulsesCount == 1 then
+		print "hello"
+		for k, pulse in pairs(self.pulses) do
+			if pulse.direction ~= self.nextPulses[nextPulsesKey].direction then
+				self.isBlocked = true
+			end
 		end
+	end
+
+	if not self.isBlocked then
+		self.pulses = self.nextPulses;
+	else
+		self.pulses = {}
 	end
 
 	self.nextPulses = {}

@@ -4,6 +4,7 @@ local Pulse = require 'pulse'
 
 local SEGMENTS = 12
 local FILL_SPEED = 0.5 / BPS
+local INNER_RINGS = INNER_RINGS
 
 function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRadius, outerRadius, isBlast)
 	self.center = center
@@ -38,10 +39,13 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 
 	self.pulses = {}
 	self.nextPulses = {}
+	self.nextPulsesCount = 0
 
 	self.blockedState = {
 		isBlocked = false
 	}
+
+	self.isStopped = false
 end
 
 function Zone:draw(clock)
@@ -85,71 +89,54 @@ function Zone:draw(clock)
 	)
 end
 
-function Zone:preUpdate(dt, clock)
-	if self.blockedState.isBlocked and clock.is_on_eighth then
-		self.blockedState.blockedCount = self.blockedState.blockedCount - 1
-		if self.blockedState.blockedCount == 0 then
-			self.blockedState.isBlocked = false
-		end
-	end
-end
 
 function Zone:update(dt, clock)
+
 	for k, pulse in pairs(self.pulses) do
 		pulse:update(dt)
 
 		if pulse.fillAmount <= 0 then
 			table.remove(self.pulses, k)
 
-		elseif self.isBlast and clock['is_on_eighth'] then
-			return -- drop pulse
-		elseif self.isBlast then
-			self:putPulse(pulse) -- save pulse until the eigth
 		elseif not clock['is_on_eighth'] or not pulse:isFilled() then
-			self:putPulse(pulse) -- save pulse until the eighth or until it is filled
-			return
-		else -- on the eighths for all pulses that are not in blast zones and are filled
+			self:putPulse(pulse)
+		elseif self.isBlast then
+			-- pass
+		else
 			local nextRing = self.ring + pulse.direction
-			local nextZone = field:getZone(nextRing, self.slice)
-
-			--try to advance
-			--if nextRing < INNER_RINGS or nextZone:getPulse() ~= nil then
-
-			if (nextRing < INNER_RINGS or
-				nextZone:isBlocked() or
-				(nextZone:getPulse() and nextZone:getPulse().direction == pulse.direction))
-			then
+			if (nextRing < INNER_RINGS) then
 				self:putPulse(pulse)
+				self.isStopped = true
 			else
-				nextZone:putPulse(pulse)
+				local nextZone = field:getZone(nextRing, self.slice)
+				local nextPulse = nextZone:getPulse()
+
+				if nextPulse == nil then
+					nextZone:putPulse(pulse)
+				else
+					if pulse.direction == nextPulse.direction then
+						if nextZone.isStopped then
+							self:putPulse(pulse)
+							self.isStopped = true
+						else
+							nextZone:putPulse(pulse)
+						end
+					else
+						nextZone:dropPulses()
+					end
+				end
 			end
 		end
 	end
 end
 
 function Zone:postUpdate(dt, clock)
-	local nextPulsesCount = 0
-	local nextPulsesKey = 0
 
-	for k, pulse in pairs(self.nextPulses) do
-		nextPulsesCount = nextPulsesCount + 1
-		nextPulsesKey = k
-	end
-
-	--two or more pulses will colide
-	if nextPulsesCount > 1 then
-		self:setBlocked(self.nextPulses[nextPulsesKey].ship.color)
+	if self.nextPulsesCount > 1 then
 		self.nextPulses = {}
-
-	elseif nextPulsesCount == 1 then
-		for k, pulse in pairs(self.pulses) do
-			if pulse.direction ~= self.nextPulses[nextPulsesKey].direction then
-				self:setBlocked(pulse.ship.color)
-				self.nextPulses = {}
-			end
-		end
 	end
 
+	self.nextPulsesCount = 0
 	self.pulses = self.nextPulses
 	self.nextPulses = {}
 end
@@ -168,10 +155,16 @@ end
 
 function Zone:putPulse(pulse)
 	self.nextPulses[pulse.ship.number] = pulse
+	self.nextPulsesCount = self.nextPulsesCount + 1
 end
 
 function Zone:getPulse()
 	return self.pulses[next(self.pulses)]
+end
+
+function Zone:dropPulses()
+	self.pulses = {}
+	self.isStopped = false
 end
 
 function Zone:fill(dt, ship, fromInner)

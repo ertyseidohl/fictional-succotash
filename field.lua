@@ -153,6 +153,11 @@ function Field:update(dt, clock)
 		endGame()
 	end
 
+	-- pre update zones
+	for _, zone in pairs(self.zones) do
+		zone:preUpdate(dt, clock)
+	end
+
 	-- update zones
 	for _, zone in pairs(self.zones) do
 		zone:update(dt, clock)

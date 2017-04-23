@@ -32,8 +32,4 @@ function Pulse:getPercentFilled()
 	return self.fillAmount / self.fillTarget
 end
 
-function Pulse:reverseDirection()
-	self.direction = self.direction * -1
-end
-
 return Pulse

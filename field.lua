@@ -15,12 +15,7 @@ function Field:initialize(rings, slices, maxRadius)
 	self.slices = slices
 	self.maxRadius = maxRadius
 	self.zones = {}
-	self.ships = {
-		Ship:new(1, {255,0,0,255}, RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'}),
-		Ship:new(2, {0,0,255,255}, math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'}),
-		--Ship:new(3, {0,255,0,255}, math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'}),
-		Ship:new(4, {255,255,0,255}, math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'})
-	}
+	self.ships = {}
 	self.center = {
 		x = WIDTH / 2,
 		y = HEIGHT / 2
@@ -29,6 +24,22 @@ function Field:initialize(rings, slices, maxRadius)
 	self.radiusIncrement = (self.maxRadius / self.rings) * 0.5
 	self.radialWidth = (2 * math.pi) / self.slices
 	self:generateZones()
+end
+
+function Field:setPlayers(players)
+	--players is an array of 4 bools
+	if players[1] then
+		table.insert(self.ships, Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'}))
+	end
+	if players[2] then
+		table.insert(self.ships, Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'}))
+	end
+	if players[3] then
+		table.insert(self.ships, Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'}))
+	end
+	if players[4] then
+		table.insert(self.ships, Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'}))
+	end
 end
 
 function Field:generateZones()

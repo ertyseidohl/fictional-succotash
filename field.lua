@@ -4,39 +4,42 @@ local Zone = require 'zone'
 local Ship = require 'ship'
 local Devil = require 'devil'
 
+local LINE_WIDTH = 1
 local RADIAL_WIDTH_HALF = (math.pi * 2 / 32) / 2
+local FIELD_SEGMENTS = 64
 
-local GRID_COLORS = {
-	{255, 178, 174}, -- pastel red
-	{225, 239, 255}, -- pastel blue
-	{239, 255, 225}, -- pastel green
-	{254, 255, 225}, -- pastel yellow
-}
-local INNER_RINGS = 3
+local GRID_COLOR = {128, 0, 128}
 
 function Field:initialize(rings, slices, maxRadius)
 	self.rings = rings
 	self.slices = slices
 	self.maxRadius = maxRadius
 	self.zones = {}
-	self.ships = {
-		Ship:new(1, {255,0,0,255}, RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'}),
-		Ship:new(2, {0,0,255,255}, math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'}),
-		--Ship:new(3, {0,255,0,255}, math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'}),
-		Ship:new(4, {255,255,0,255}, math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'})
-	}
+	self.ships = {}
 	self.center = {
 		x = WIDTH / 2,
 		y = HEIGHT / 2
 	}
-
-
 	self.devil = Devil:new(self)
-
-
 	self.radiusIncrement = (self.maxRadius / self.rings) * 0.5
 	self.radialWidth = (2 * math.pi) / self.slices
 	self:generateZones()
+end
+
+function Field:setPlayers(players)
+	--players is an array of 4 bools
+	if players[1] then
+		table.insert(self.ships, Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'}))
+	end
+	if players[2] then
+		table.insert(self.ships, Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'}))
+	end
+	if players[3] then
+		table.insert(self.ships, Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'}))
+	end
+	if players[4] then
+		table.insert(self.ships, Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'}))
+	end
 end
 
 function Field:generateZones()
@@ -81,14 +84,18 @@ function Field:getZone(ring, slice)
 	return self.zones[index]
 end
 
-function Field:fill(dt, ship)
-	local zone = self:getZone(self.rings, math.ceil(ship.angle / self.radialWidth))
-	zone:fill(dt, ship)
+function Field:fill(dt, ship, fromInner)
+	local zone = nil
+	if (fromInner) then
+		zone = self:getZone(INNER_RINGS, math.ceil(ship.angle / self.radialWidth))
+	else
+		zone = self:getZone(self.rings, math.ceil(ship.angle / self.radialWidth))
+	end
+	zone:fill(dt, ship, fromInner)
 end
 
 function Field:draw(clock)
-
-	self:drawRadials(clock)
+	love.graphics.setLineWidth(LINE_WIDTH)
 	self:drawCircles(clock)
 
 	self.devil:draw(clock)
@@ -101,30 +108,14 @@ function Field:draw(clock)
 	end
 end
 
-function Field:drawRadials(clock)
-
-	local flash = 100
-	-- if clock.sixteenth_count % 4 == 0 and clock.sixteenth_count % 8 == 0 then
-	-- 	flash = 140
-	-- end
-
-	for slice = 1, self.slices, 1 do
-		local outerZone = self:getZone(self.rings, slice)
-		local innerZone = self:getZone(INNER_RINGS, slice)
-		love.graphics.setColor(255, 255, 255, flash)
-		love.graphics.line(innerZone.right.inner.x, innerZone.right.inner.y, outerZone.right.outer.x, outerZone.right.outer.y)
-	end
-
-end
-
 function Field:drawCircles(clock)
-    for ring = math.max(INNER_RINGS - 1, 1), self.rings, 1 do
-    	local zoneRing = self:getZone(ring, 1)
-    	local color = GRID_COLORS[((-clock.eighth_count + ring) % 4) + 1]
-    	color[4] = 255 - (self.rings - ring) * 10
-    	love.graphics.setColor(unpack(color))
-    	love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, SEGMENTS)
-    end
+	for ring = math.max(INNER_RINGS - 1, 1), self.rings, 1 do
+		local zoneRing = self:getZone(ring, 1)
+		if (ring - clock.eighth_count) % 4 == 0 then
+			love.graphics.setColor(GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], 255 - (self.rings - ring) * 10)
+			love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
+		end
+	end
 end
 
 function Field:update(dt, clock)
@@ -148,15 +139,14 @@ function Field:update(dt, clock)
 
 	-- check for collisons
 	for _, zone in pairs(self.zones) do
-		if zone.isBlast then
+		if zone.isBlast and zone:getPulse() ~= nil then
 			for _, ship in pairs(self.ships) do
-				if zone:contains(ship.angle) and zone:hasEnemyPulse(ship) then
+				if zone:contains(ship.angle) then
 					ship:loseLife()
 				end
 			end
 		end
 	end
-
 end
 
 return Field

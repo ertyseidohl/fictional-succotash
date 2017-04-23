@@ -9,16 +9,15 @@ local DEVIL_COLOR = {127, 0, 127, 255}
 function Devil:initialize(field)
 	self.center = field.center
 
-	self.handsCount = 2
+	self.color = DEVIL_COLOR
+
 	self.hands = {
 		-- todo more hands
-		Hand:new(),
-		Hand:new()
+		Hand:new(self, math.deg(90)),
+		Hand:new(self, math.deg(180))
 	}
-
-	self.handTargets = {
-
-	}
+	self.handsCount = 2
+	self.handTargets = {}
 
 	self.handPositionOffset = 0
 
@@ -52,14 +51,13 @@ end
 
 function Devil:update(dt, clock)
 	self:handAI(clock)
-
 	for _, hand in pairs(self.hands) do
-		hand:update()
+		hand:update(dt, clock)
 	end
 end
 
 function Devil:draw()
-	love.graphics.setColor(unpack(DEVIL_COLOR))
+	love.graphics.setColor(unpack(self.color))
 	love.graphics.circle('fill', self.center.x, self.center.y, DEVIL_RADIUS, DEVIL_LINE_SEGMENTS)
 
 	for _, hand in pairs(self.hands) do

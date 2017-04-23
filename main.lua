@@ -1,17 +1,33 @@
 class = require 'lib/middleclass'
 
--- globals
+-- global settings
 BPM = 300
 BPS = BPM / 60
 WIDTH = 1366
 HEIGHT = 768
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
+INNER_RINGS = 3
+PLAYER_COLORS = {
+	{255,0,0,255},
+	{0,0,255,255},
+	{0,255,0,255},
+	{255,255,0,255}
+}
+
+-- states
+local STATE_MENU = 0
+local STATE_PLAYING = 1
+local STATE_GAME_OVER = 2
 
 local Field = require 'field'
 local MusicSystem = require 'musicsystem'
+local Menu = require 'menu'
 
--- global field
+local gameState = STATE_MENU
+
+-- global objects
 field = Field:new(16, 32, MAXRADIUS)
+menu = Menu:new()
 
 love.window.setMode(WIDTH, HEIGHT, {
 	fullscreen = true,
@@ -35,7 +51,13 @@ local musicsystem = nil
 debug_print_keypresses = false
 
 function love.draw()
-	field:draw(clock)
+	if gameState == STATE_PLAYING then
+		field:draw(clock)
+	elseif gameState == STATE_MENU then
+		menu:draw(clock)
+	else
+		--todo STATE_GAME_OVER
+	end
 end
 
 function love.load()
@@ -83,10 +105,15 @@ function love.update(dt)
 		next_clock['is_on_half'] = false;
 	end
 
-
 	clock = next_clock
 
-	field:update(dt, clock)
+	if gameState == STATE_PLAYING then
+		field:update(dt, clock)
+	elseif gameState == STATE_MENU then
+		menu:update(dt, clock)
+	else
+		--todo STATE_GAME_OVER
+	end
 
 	if love.keyboard.isDown('escape') then
 		love.event.quit()
@@ -96,6 +123,11 @@ function love.update(dt)
 	if love.keyboard.isDown('p') then
 		debug_print_keypresses = true
 	end
+end
+
+function startGame()
+	gameState = STATE_PLAYING
+	field:setPlayers(menu.players)
 end
 
 -- debug
@@ -109,5 +141,35 @@ function love.keypressed(key)
 	elseif key == "o" then
 		musicsystem:adjustDown()
 	end
+
+	if key == "o" then
+		menu:addCredit()
+	end
+
+	if key == "1" then
+		menu:addPlayer(1)
+	elseif key == "2" then
+		menu:addPlayer(2)
+	elseif key == "3" then
+		menu:addPlayer(3)
+	elseif key == "4" then
+		menu:addPlayer(4)
+	end
+
+	if key == 'g' then
+		-- if we have at least one player we can start
+		if menu:hasPlayers() then
+			startGame()
+		end
+	end
+
+	if key == "`" then
+		for i = 1, 4, 1 do
+			menu:addCredit()
+			menu:addPlayer(i)
+		end
+		startGame()
+	end
+
 	io.flush()
 end

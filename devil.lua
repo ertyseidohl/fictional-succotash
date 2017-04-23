@@ -13,11 +13,14 @@ function Devil:initialize(field)
 
 	self.hands = {
 		-- todo more hands
-		Hand:new(self, math.deg(90)),
-		Hand:new(self, math.deg(180))
+		Hand:new(self, math.rad(90)),
+		Hand:new(self, math.rad(180)),
+		Hand:new(self, math.rad(270)),
+		Hand:new(self, math.rad(0)),
+		Hand:new(self, math.rad(90)),
 	}
-	self.handsCount = 2
-	self.handTargets = {}
+	self.handCount = 5
+	self.handTargets = {0, 0, 0, 0, 0}
 
 	self.handPositionOffset = 0
 
@@ -27,26 +30,39 @@ function Devil:initialize(field)
 		fan = fanOut,
 	}
 
+	self.handAttackMap = {
+		none = noneAttack,
+		fire = fireAttack
+	}
+
 	self.handFormationConfig = {
 		snap = {
 			beats = 4,
-			nextState = 'snap',
+			nextState = 'action',
 			formationStrategy = 'change',
 			formations = {
 				'even', 'unison', 'fan'
 			},
 			formationsLength = 3,
+			attackStrategy = 'none',
 		},
 		action = {
 			beats = 4,
 			nextState = 'snap',
+			formationStrategy = 'inherit',
+			attackStrategy = 'change',
+			attacks = {
+				'fire'
+			},
+			attacksLength = 1
 		}
 	}
 
 	self.handState = 'snap'
 	self.handBeatClock = 0
 	self.handFormation = 'none'
-	self.handOffset = 0
+	self.rotationVelocity = 1
+	self.handAttack = 'none'
 end
 
 function Devil:update(dt, clock)
@@ -67,6 +83,14 @@ end
 
 function Devil:handAI(clock)
 	local changeState = false
+
+	if clock.is_on_half then
+		self.handPositionOffset = self.handPositionOffset + self.rotationVelocity
+		if clock.half_count % 2 == 0 then
+			self.rotationVelocity = math.random(5) - 3
+		end
+	end
+
 	if clock.is_on_quarter then
 		self.handBeatClock = self.handBeatClock + 1
 	end
@@ -76,26 +100,67 @@ function Devil:handAI(clock)
 		self.handBeatClock = 0
 
 		self:changeFormation()
+		self:changeAttack()
 		changeState = true
 	end
+
+	self:moveHands(clock)
+	self:attackHands(clock)
 end
 
 function Devil:changeFormation()
 	local config = self.handFormationConfig[self.handState]
 	if config.formationStrategy == 'change' then
 		self.handFormation = config.formations[math.random(config.formationsLength)]
-		self.handTargets = self.handFormationMap[self.handFormation](self.handsCount, field.slices)
+		local targetSlices = self.handFormationMap[self.handFormation](self.handCount, field.slices)
+
+		self.handTargets = {}
+		for _, slice in pairs(targetSlices) do
+			local targetSlice = (slice + self.handPositionOffset % field.slices) + 1
+			table.insert(self.handTargets, 2 * math.pi * targetSlice / field.slices)
+		end
 	end
 end
 
-function Devil:moveHands()
-	for i = 1, self.handCount, 1 do
-
-		local targetSlice= (self.handTargets[i] + self.handPositionOffset % field.slices) + 1
-
+function Devil:changeAttack()
+	local config = self.handFormationConfig[self.handState]
+	if config.attackStrategy == 'change' then
+		self.handAttack = config.attacks[math.random(config.attacksLength)]
+	else
+		self.handAttack = 'none'
 	end
 end
 
+
+function Devil:moveHands(clock)
+	local radialWidth = (math.pi * 2 / field.slices)
+	if clock.is_on_sixteenth then
+		for i = 1, self.handCount, 1 do
+			local hand = self.hands[i]
+			local targetAngle = self.handTargets[i]
+
+			local moveFactor = .5
+			if math.abs(hand.angle - targetAngle) < radialWidth then
+				moveFactor = .125
+			elseif math.abs(hand.angle - targetAngle) < radialWidth / 2 then
+				moveFactor = 0
+			end
+
+			if hand.angle > targetAngle then
+				hand.angle = hand.angle - radialWidth * moveFactor
+			else
+				hand.angle = hand.angle + radialWidth * moveFactor
+			end
+		end
+	end
+end
+
+function Devil:attackHands(clock)
+	for _, hand in pairs(self.hands) do
+		--print(self.handAttack)
+		self.handAttackMap[self.handAttack](clock, hand)
+	end
+end
 
 function evenlySpaced(numHands, numSlices)
 
@@ -131,6 +196,20 @@ function fanOut(numHands, numSlices)
 		end
 	end
 	return spacing
+end
+
+
+--atacks
+
+function noneAttack(hand)
+
+end
+
+function fireAttack(clock, hand)
+	if clock.is_on_quarter then
+		hand:fire()
+		print('fire!')
+	end
 end
 
 return Devil

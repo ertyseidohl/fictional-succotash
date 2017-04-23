@@ -101,7 +101,7 @@ function love.load()
 	print(version,5,15)
 	print(vendor,5,25)
 	print(device ,5,35)
-	
+
 	musicsystem = MusicSystem:new()
 	postEffect = Shine.boxblur()
 end
@@ -111,6 +111,7 @@ function love.draw()
 		postEffect:draw(function() 
 			field:draw(clock)
 		end)
+		field:draw(clock)
 	elseif gameState == STATE_MENU then
 		menu:draw(clock)
 	elseif gameState == STATE_GAME_OVER then

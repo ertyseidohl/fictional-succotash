@@ -23,7 +23,7 @@ SOFTWARE.
 ]]--
 
 local GL_SHADER_SOURCE = [[
-		const number MAX_RADIUS = 3.0;
+		const number MAX_RADIUS = 2.0;
 
         extern vec2 direction;
         extern number radius;
@@ -34,7 +34,7 @@ local GL_SHADER_SOURCE = [[
                         if(abs(i) < radius)
                                 c += Texel(texture, tc+i*direction);
                 }
-                return 2.0*color*c / (2.0*radius + 1.0);
+                return 3.0*color*c / (2.0*radius + 1.0);
         }
 	]]
 
@@ -42,9 +42,9 @@ return {
 description = "Box blur shader with support for different horizontal and vertical blur size",
 
 new = function(self)
-	self.radius_h, self.radius_v = 3, 3
+	self.radius_h, self.radius_v = 2, 2
 
-	self.width, self.height = love.graphics.getWidth() / 2, love.graphics.getHeight() / 2
+	self.width, self.height = love.graphics.getWidth() / 4, love.graphics.getHeight() / 4
 
 	self.canvas_h, self.canvas_v = love.graphics.newCanvas(width, height), love.graphics.newCanvas(width, height)
 	self.shader = love.graphics.newShader(GL_SHADER_SOURCE)
@@ -58,7 +58,7 @@ draw = function(self, func, ...)
 	local co = {love.graphics.getColor()}
 
 	love.graphics.push()
-	love.graphics.scale(0.5, 0.5)
+	love.graphics.scale(0.25, 0.25)
 
 	-- draw scene
 	self:_render_to_canvas(self.canvas_h, func, ...)
@@ -71,17 +71,17 @@ draw = function(self, func, ...)
 
 	-- first pass (horizontal blur)
 	self.shader:send('direction', {1 / self.width, 0})
-	self.shader:send('radius', math.floor(self.radius_h*0.5 + .5))
+	self.shader:send('radius', math.floor(self.radius_h*0.25 + .5))
 	self:_render_to_canvas(self.canvas_v,
 	                       love.graphics.draw, self.canvas_h, 0,0)
 
 	-- second pass (vertical blur)
 	self.shader:send('direction', {0, 1 / self.height})
-	self.shader:send('radius', math.floor(self.radius_v*0.5 + .5))
+	self.shader:send('radius', math.floor(self.radius_v*0.25 + .5))
 
 	love.graphics.pop()
 
-	love.graphics.draw(self.canvas_v, 0,0, 0, 4, 4)
+	love.graphics.draw(self.canvas_v, 0,0, 0, 16, 16)
 
 	-- restore blendmode, shader and canvas
 	love.graphics.setBlendMode(b)

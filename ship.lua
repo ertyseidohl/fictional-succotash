@@ -1,15 +1,5 @@
 local Ship = class("Ship")
 
-SHIP_RADIAL_WIDTH = math.rad(25);
-SHIP_HEIGHT = 25;
-SHIP_BUFFER = 10;
-
-SHIP_ACCELERATION = 0.0025
-SHIP_FRICTION = 0.90
-SHIP_MAX_VELOCITY = 0.05
-SHIP_STARTING_LIVES = 3
-SHIP_INVINCIBLE_TIME = 8
-
 function Ship:initialize(number, color, startAngle, keys)
 	self.number = number
 	self.color = color
@@ -50,6 +40,19 @@ function Ship:draw()
 		point.x, point.y,
 		rightArm.x, rightArm.y
 	})
+
+	love.graphics.setLineWidth(SHIP_LIFE_LINE_WIDTH)
+	for i = 1, self.lives, 1 do
+		love.graphics.arc(
+			'line',
+			'open',
+			point.x,
+			point.y,
+			SHIP_HEIGHT + (SHIP_LIFE_LINE_BUFFER * i),
+			self.angle - SHIP_LIFE_LINE_ANGLE,
+			self.angle + SHIP_LIFE_LINE_ANGLE
+		)
+	end
 end
 
 function Ship:isAlive()

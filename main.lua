@@ -24,7 +24,25 @@ HAND_BUFFER = 0
 HAND_HEIGHT = 15
 HAND_RADIAL_WIDTH = math.rad(10)
 
+SHIP_RADIAL_WIDTH = math.rad(25);
+SHIP_HEIGHT = 25;
+SHIP_BUFFER = 10;
+
+SHIP_ACCELERATION = 0.0025
+SHIP_FRICTION = 0.90
+SHIP_MAX_VELOCITY = 0.05
+SHIP_STARTING_LIVES = 3
+SHIP_INVINCIBLE_TIME = 8
+SHIP_LIFE_LINE_BUFFER = 10
+SHIP_LIFE_LINE_WIDTH = 5
+SHIP_LIFE_LINE_ANGLE = math.rad(20)
+
 GAME_OVER_COUNTDOWN_MAX = 10
+
+COIN_SIZE = 30
+COIN_BUFFER = 5
+COIN_COLOR = {200, 200, 200, 200}
+COIN_ACCENT = {220, 220, 230, 200}
 
 -- states
 STATE_MENU = 0
@@ -39,6 +57,7 @@ local Field = require 'field'
 local MusicSystem = require 'musicsystem'
 local Menu = require 'menu'
 local PlayerSystem = require 'playersystem'
+local Shine = require 'lib/shine-master'
 
 -- local vars
 local screenCapCanvas = love.graphics.newCanvas(WIDTH, HEIGHT)
@@ -49,6 +68,8 @@ gameState = STATE_MENU
 field = Field:new(16, 32, MAXRADIUS)
 playerSystem = PlayerSystem:new()
 menu = Menu:new()
+
+name, version, vendor, device = love.graphics.getRendererInfo()
 
 love.window.setMode(WIDTH, HEIGHT, {
 	fullscreen = true,
@@ -69,12 +90,27 @@ local firstUpdate = true
 
 local musicsystem = nil
 
+local postEffect = nil
+
 --debug
 debug_print_keypresses = false
 
+
+function love.load()
+	print(name,5,5)
+	print(version,5,15)
+	print(vendor,5,25)
+	print(device ,5,35)
+	
+	musicsystem = MusicSystem:new()
+	postEffect = Shine.boxblur()
+end
+
 function love.draw()
 	if gameState == STATE_PLAYING then
-		field:draw(clock)
+		postEffect:draw(function() 
+			field:draw(clock)
+		end)
 	elseif gameState == STATE_MENU then
 		menu:draw(clock)
 	elseif gameState == STATE_GAME_OVER then
@@ -85,10 +121,6 @@ function love.draw()
 	end
 
 	playerSystem:draw(clock)
-end
-
-function love.load()
-	musicsystem = MusicSystem:new()
 end
 
 function love.update(dt)

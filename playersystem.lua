@@ -45,6 +45,15 @@ function PlayerSystem:draw()
 			love.graphics.print(self.playerCountdowns[i], 100 * i, HEIGHT - 75)
 		end
 	end
+
+
+	for i = 1, self.credits, 1 do
+		love.graphics.setColor(COIN_COLOR)
+		love.graphics.circle('fill', (COIN_SIZE + COIN_BUFFER) * i, HEIGHT - COIN_SIZE, COIN_SIZE / 2)
+		love.graphics.setColor(COIN_ACCENT)
+		love.graphics.setLineWidth(1)
+		love.graphics.circle('line', (COIN_SIZE + COIN_BUFFER) * i, HEIGHT - COIN_SIZE, COIN_SIZE / 2)
+	end
 end
 
 function PlayerSystem:update(dt, clock)

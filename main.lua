@@ -57,6 +57,7 @@ local Field = require 'field'
 local MusicSystem = require 'musicsystem'
 local Menu = require 'menu'
 local PlayerSystem = require 'playersystem'
+local Shine = require 'lib/shine-master'
 
 -- local vars
 local screenCapCanvas = love.graphics.newCanvas(WIDTH, HEIGHT)
@@ -87,12 +88,23 @@ local firstUpdate = true
 
 local musicsystem = nil
 
+local postEffect = nil
+
 --debug
 debug_print_keypresses = false
 
+
+function love.load()
+	musicsystem = MusicSystem:new()
+	postEffect = Shine.boxblur()
+
+end
+
 function love.draw()
 	if gameState == STATE_PLAYING then
-		field:draw(clock)
+		postEffect:draw(function() 
+			field:draw(clock)
+		end)
 	elseif gameState == STATE_MENU then
 		menu:draw(clock)
 	elseif gameState == STATE_GAME_OVER then
@@ -103,10 +115,6 @@ function love.draw()
 	end
 
 	playerSystem:draw(clock)
-end
-
-function love.load()
-	musicsystem = MusicSystem:new()
 end
 
 function love.update(dt)

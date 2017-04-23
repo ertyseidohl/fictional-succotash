@@ -105,7 +105,7 @@ end
 function Field:fill(dt, ship, fromInner)
 	local zone = nil
 	if (fromInner) then
-		zone = self:getZone(INNER_RINGS, math.ceil(ship.angle / self.radialWidth))
+		zone = self:getZone(INNER_RINGS - 1, math.ceil(ship.angle / self.radialWidth))
 	else
 		zone = self:getZone(self.rings, math.ceil(ship.angle / self.radialWidth))
 	end
@@ -151,11 +151,6 @@ function Field:update(dt, clock)
 	end
 	if playerSystem:getAlivePlayerCount() == 0 then
 		endGame()
-	end
-
-	-- pre update zones
-	for _, zone in pairs(self.zones) do
-		zone:preUpdate(dt, clock)
 	end
 
 	-- update zones

@@ -16,6 +16,13 @@ function PlayerSystem:initialize()
 		0,
 		0
 	}
+
+	self.playerScores = {
+		0,
+		0,
+		0,
+		0,
+	}
 end
 
 function PlayerSystem:addPlayer(player)
@@ -38,12 +45,15 @@ function PlayerSystem:addPlayer(player)
 end
 
 function PlayerSystem:draw()
+
 	for i = 1, 4, 1 do
 		love.graphics.setColor(unpack(TEXT_COLOR))
 		if self.playerStates[i] == PLAYER_STATE_CONTINUE then
 			love.graphics.print("CONTINUE?", 100 * i, HEIGHT - 100)
 			love.graphics.print(self.playerCountdowns[i], 100 * i, HEIGHT - 75)
 		end
+
+		love.graphics.print(self.playerScores[i], 200 * i, HEIGHT - 100)
 	end
 
 
@@ -57,7 +67,16 @@ function PlayerSystem:draw()
 end
 
 function PlayerSystem:update(dt, clock)
-	if clock.is_on_full then
+
+	if clock.is_on_quarter then
+		for i = 1, 4, 1 do
+			if self.playerStates[i] == PLAYER_STATE_ALIVE then
+				self.playerScores[i] = self.playerScores[i] + SCORE_INCREMENT
+			end
+		end
+	end
+
+	if clock.is_on_whole then
 		for i = 1, 4, 1 do
 			if self.playerCountdowns[i] > 0 then
 				self.playerCountdowns[i] = self.playerCountdowns[i] - 1

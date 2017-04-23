@@ -44,6 +44,9 @@ COIN_BUFFER = 5
 COIN_COLOR = {200, 200, 200, 200}
 COIN_ACCENT = {220, 220, 230, 200}
 
+--scoring
+SCORE_INCREMENT = 175
+
 -- states
 STATE_MENU = 0
 STATE_PLAYING = 1
@@ -101,14 +104,14 @@ function love.load()
 	print(version,5,15)
 	print(vendor,5,25)
 	print(device ,5,35)
-	
+
 	musicsystem = MusicSystem:new()
 	postEffect = Shine.boxblur()
 end
 
 function love.draw()
 	if gameState == STATE_PLAYING then
-		postEffect:draw(function() 
+		postEffect:draw(function()
 			field:draw(clock)
 		end)
 	elseif gameState == STATE_MENU then
@@ -166,9 +169,9 @@ function love.update(dt)
 	end
 
 	if next_clock['full_count'] ~= clock['full_count'] then
-		next_clock['is_on_full'] = true;
+		next_clock['is_on_whole'] = true;
 	else
-		next_clock['is_on_full'] = false;
+		next_clock['is_on_whole'] = false;
 	end
 
 	clock = next_clock

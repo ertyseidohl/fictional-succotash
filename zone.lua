@@ -39,6 +39,7 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 	}
 
 	self.isBlocked = false
+	self.blockCount = 0
 
 	self.pulses = {}
 	self.nextPulses = {}
@@ -116,6 +117,17 @@ function Zone:draw(clock)
 end
 
 function Zone:update(dt, clock)
+
+	if self.isBlocked then
+		if clock.is_on_quarter then
+			self.blockedCount = self.blockedCount - 1
+		end
+		if self.blockedCount <= 0 then
+			self.isBlocked = false
+		end
+	end
+
+
 	for k, pulse in pairs(self.pulses) do
 		pulse:update(dt)
 
@@ -160,11 +172,11 @@ function Zone:postUpdate(dt, clock)
 
 	--two or more pulses will colide
 	if nextPulsesCount > 1 then
-		self.isBlocked = true
+		self:setBlocked()
 	elseif nextPulsesCount == 1 then
 		for k, pulse in pairs(self.pulses) do
 			if pulse.angle ~= self.nextPulses[nextPulsesKey].angle then
-				self.isBlocked = true
+				self:setBlocked()
 			end
 		end
 	end
@@ -178,6 +190,11 @@ function Zone:postUpdate(dt, clock)
 	self.nextPulses = {}
 end
 
+
+function Zone:setBlocked()
+	self.isBlocked = true
+	self.blockedCount = 4
+end
 
 function Zone:putPulse(pulse)
 	self.nextPulses[pulse.ship.number] = pulse

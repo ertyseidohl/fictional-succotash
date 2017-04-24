@@ -1,7 +1,7 @@
 class = require 'lib/middleclass'
 
 -- global settings
-BPM = 300
+BPM = 300 -- debug
 BPS = BPM / 60
 WIDTH = 1366
 HEIGHT = 768
@@ -57,6 +57,7 @@ SCORE_BOXES = {
 	{x = WIDTH - SCORE_BOX_BUFFER, y = HEIGHT - SCORE_BOX_BUFFER},
 }
 
+BLUR_SEGMENTS = 3
 ZONE_BLUR_SIZE = 2
 ZONE_BLUR_INTENSITY = 64 -- opacity of outermost blur out of 255
 RING_BLUR_SIZE = 5 -- in pixels
@@ -125,10 +126,10 @@ local postEffect = nil
 debug_print_keypresses = false
 
 function love.load()
-	print(name,5,5)
-	print(version,5,15)
-	print(vendor,5,25)
-	print(device ,5,35)
+	-- print(name,5,5)
+	-- print(version,5,15)
+	-- print(vendor,5,25)
+	-- print(device ,5,35)
 
 	musicsystem = MusicSystem:new()
 end

@@ -68,6 +68,7 @@ gameState = STATE_MENU
 field = Field:new(16, 32, MAXRADIUS)
 playerSystem = PlayerSystem:new()
 menu = Menu:new()
+joystick = (love.joystick.getJoysticks())[0]
 
 name, version, vendor, device = love.graphics.getRendererInfo()
 
@@ -108,7 +109,7 @@ end
 
 function love.draw()
 	if gameState == STATE_PLAYING then
-		postEffect:draw(function() 
+		postEffect:draw(function()
 			field:draw(clock)
 		end)
 		field:draw(clock)

@@ -217,11 +217,13 @@ function love.update(dt)
 end
 
 function startGame()
+	musicsystem:gameStart()
 	gameState = STATE_PLAYING
 	field:buildShips(playerSystem.playerStates)
 end
 
 function endGame()
+	musicsystem:gameOver()
 	love.graphics.setCanvas(screenCapCanvas)
 		love.graphics.clear()
 		field:draw(clock)

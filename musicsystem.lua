@@ -9,7 +9,11 @@ function MusicSystem:initialize()
 	self.trackb = love.audio.newSource("media/music/BarcadeFrenzy.wav", "static")
 	self.trackb:setLooping(true)
 
+	self.startScreen = love.audio.newSource("media/music/ChooseYourCharacter.wav")
+	self.startScreen:setLooping(true)
+
 	self.track = self.tracka
+	self.inGame = false
 
 	self.gstart = love.audio.newSource("media/music/GETREADY.wav", "static")
 	self.gover = love.audio.newSource("media/music/GAMEOVER.wav", "static")
@@ -20,7 +24,11 @@ function MusicSystem:initialize()
 end
 
 function MusicSystem:play()
-	love.audio.play(self.track)
+	if self.inGame then
+		love.audio.play(self.track)
+	else
+		love.audio.play(self.startScreen)
+	end
 end
 
 function MusicSystem:switchTrack()
@@ -36,24 +44,42 @@ function MusicSystem:switchTrack()
 end
 
 function MusicSystem:gameOver()
+	self.inGame = false
+	love.audio.stop(self.track)
 	love.audio.play(self.gover)
 end
 
 function MusicSystem:gameStart()
+	self.inGame = true
+	love.audio.stop(self.startScreen)
+	love.audio.stop(self.track)
 	love.audio.play(self.gstart)
 end
 
 function MusicSystem:update(dt)
-	local musicTime = self.track:tell("seconds");
-	if musicTime ~= self.songLastTime then
-		-- Do easing
-		if musicTime < self.songLastTime then
-			musicTime = musicTime + (self.track:getDuration("seconds") - self.songLastTime) + self.songTime
+	local fixup = false
+	if not self.gstart:isPlaying() and not self.gover:isPlaying() and not self.track:isPlaying() then
+		self:play()
+		fixup = true
+	elseif self.gstart:isPlaying() or self.gover:isPlaying() then
+		fixup = true
+	end
+
+	if not fixup then
+		local musicTime = self.track:tell("seconds");
+		if musicTime ~= self.songLastTime then
+			-- Do easing
+			if musicTime < self.songLastTime then
+				musicTime = musicTime + (self.track:getDuration("seconds") - self.songLastTime) + self.songTime
+			end
+			self.songTime = (self.songTime + musicTime) / 2
+			self.songLastTime = musicTime
+		else
+			self.songTime = self.songTime + dt
 		end
-		self.songTime = (self.songTime + musicTime) / 2
-		self.songLastTime = musicTime
 	else
-		self.songTime = self.songTime + dt
+		self.songTime = 0
+		self.songLastTime = 0
 	end
 
 	return self.songTime + self.lagtime

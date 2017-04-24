@@ -1,7 +1,7 @@
 class = require 'lib/middleclass'
 
 -- global settings
-BPM = 300
+BPM = 300 -- debug
 BPS = BPM / 60
 WIDTH = 1366
 HEIGHT = 768
@@ -57,11 +57,27 @@ SCORE_BOXES = {
 	{x = WIDTH - SCORE_BOX_BUFFER, y = HEIGHT - SCORE_BOX_BUFFER},
 }
 
+DO_BLUR = false
+BLUR_SEGMENTS = 3
 ZONE_BLUR_SIZE = 2
 ZONE_BLUR_INTENSITY = 64 -- opacity of outermost blur out of 255
 RING_BLUR_SIZE = 5 -- in pixels
 RING_BLUR_INTENSITY = 64
 RING_LINE_WIDTH = 2
+SHIP_BLUR_SIZE = 5
+SHIP_BLUR_INTENSITY = 64
+DEVIL_BLUR_SIZE = 5
+DEVIL_BLUR_INTENSITY = 64
+
+PLAYER_KEYS = {
+	{cc = 'z', c = 'x', f = 's', jcc = 1, jc = 2, jf = 3},
+	{cc = 'c', c = 'v', f = 'f', jcc = 4, jc = 5, jf = 6},
+	{cc = 'b', c = 'n', f = 'h', jcc = 7, jc = 8, jf = 9},
+	{cc = 'm', c = ',', f = 'k', jcc = 10, jc = 11, jf = 12}
+}
+
+START_GAME_MAX_COUNT = 400 -- arbitrary
+START_GAME_COUNT_MOD = 40
 
 -- states
 STATE_MENU = 0
@@ -89,6 +105,8 @@ local Shine = require 'lib/shine-master'
 -- local vars
 local screenCapCanvas = love.graphics.newCanvas(WIDTH, HEIGHT)
 local gameOverDevilSize = 0
+local isGameStarting = false
+local menuStartGameCounter = 0
 
 -- global objects
 gameState = STATE_MENU
@@ -124,10 +142,10 @@ local postEffect = nil
 debug_print_keypresses = false
 
 function love.load()
-	print(name,5,5)
-	print(version,5,15)
-	print(vendor,5,25)
-	print(device ,5,35)
+	-- print(name,5,5)
+	-- print(version,5,15)
+	-- print(vendor,5,25)
+	-- print(device ,5,35)
 
 	musicsystem:load()
 end
@@ -137,6 +155,11 @@ function love.draw()
 		field:draw(clock)
 	elseif gameState == STATE_MENU then
 		menu:draw(clock)
+		if isGameStarting then
+			love.graphics.setColor({255, 255, 255, 255})
+			-- debug TODO MOVE THIS
+			love.graphics.print(10 - (10 * ((menuStartGameCounter - menuStartGameCounter % START_GAME_COUNT_MOD) / START_GAME_MAX_COUNT)), 50, 50)
+		end
 	elseif gameState == STATE_GAME_OVER then
 		love.graphics.setColor({255, 255, 255, 255})
 		love.graphics.draw(screenCapCanvas)
@@ -211,6 +234,14 @@ function love.update(dt)
 
 	playerSystem:update(dt, clock)
 
+	if isGameStarting then
+		menuStartGameCounter = menuStartGameCounter + 1
+
+		if menuStartGameCounter == START_GAME_MAX_COUNT then
+			startGame()
+		end
+	end
+
 	--debug
 	if love.keyboard.isDown('p') then
 		debug_print_keypresses = true
@@ -221,6 +252,8 @@ function startGame()
 	musicsystem:gameStart()
 	gameState = STATE_PLAYING
 	field:buildShips(playerSystem.playerStates)
+	isGameStarting = false
+	menuStartGameCounter = 0
 end
 
 function endGame()
@@ -239,14 +272,14 @@ function backToMenu()
 end
 
 function resurrectGame()
+	musicsystem:gameStart()
 	gameState = STATE_PLAYING
 	gameOverDevilSize = 0
 end
 
-function love.joystickpressed(joystick, button)
-	--debug
-	if gameState == STATE_MENU then
-		startGame()
+function love.joystickaxis(js, axis, val)
+	if axis == 2 and val == -1 then
+		playerSystem:addCredit()
 	end
 end
 
@@ -276,14 +309,18 @@ function love.keypressed(key)
 		playerSystem:addCredit()
 	end
 
-	if key == "1" then
-		playerSystem:addPlayer(1)
-	elseif key == "2" then
-		playerSystem:addPlayer(2)
-	elseif key == "3" then
-		playerSystem:addPlayer(3)
-	elseif key == "4" then
-		playerSystem:addPlayer(4)
+	for i = 1, 4, 1 do
+		if tostring(i) == key then
+			if gameState == STATE_MENU then
+				if playerSystem.playerStates[i] == PLAYER_STATE_NONE then
+					playerSystem:addPlayer(i)
+				else
+					isGameStarting = true
+				end
+			else --STATE_PLAYING or STATE_GAME_OVER
+				playerSystem:addPlayer(i)
+			end
+		end
 	end
 
 	if key == 'g' then
@@ -306,4 +343,20 @@ function love.keypressed(key)
 	end
 
 	io.flush()
+end
+
+function love.joystickpressed(js, button)
+	for i = 1, 4, 1 do
+		if (button == PLAYER_KEYS[i]['jf']) then
+			if gameState == STATE_MENU then
+				if playerSystem.playerStates[i] == PLAYER_STATE_NONE then
+					playerSystem:addPlayer(i)
+				else
+					isGameStarting = true
+				end
+			else --STATE_PLAYING or STATE_GAME_OVER
+				playerSystem:addPlayer(i)
+			end
+		end
+	end
 end

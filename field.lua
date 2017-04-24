@@ -29,16 +29,16 @@ end
 
 function Field:addShip(player)
 	if player == 1 then
-		self.ships[1] = Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's', jcc = 1, jc = 2, jf = 3}, self.soundsystem)
+		self.ships[1] = Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, PLAYER_KEYS[1], self.soundsystem)
 	end
 	if player == 2 then
-		self.ships[2] = Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f', jcc = 4, jc = 5, jf = 6}, self.soundsystem)
+		self.ships[2] = Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, PLAYER_KEYS[2], self.soundsystem)
 	end
 	if player == 3 then
-		self.ships[3] = Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h', jcc = 7, jc = 8, jf = 9}, self.soundsystem)
+		self.ships[3] = Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, PLAYER_KEYS[3], self.soundsystem)
 	end
 	if player == 4 then
-		self.ships[4] = Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k', jcc = 10, jc = 11, jf = 12}, self.soundsystem)
+		self.ships[4] = Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, PLAYER_KEYS[4], self.soundsystem)
 	end
 end
 
@@ -139,11 +139,12 @@ function Field:drawCircles(clock)
 			love.graphics.setColor(GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], 255 - (self.rings - ring) * 10)
 			love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
 
-			--blur
-			for i = 1, 4, 1 do
-				love.graphics.setColor({GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], RING_BLUR_INTENSITY - (self.rings - ring) * 10})
-				love.graphics.setLineWidth(RING_BLUR_SIZE * i)
-				love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
+			if DO_BLUR then
+				for i = 1, 4, 1 do
+					love.graphics.setColor({GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], RING_BLUR_INTENSITY - (self.rings - ring) * 10})
+					love.graphics.setLineWidth(RING_BLUR_SIZE * i)
+					love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
+				end
 			end
 		end
 	end
@@ -234,6 +235,12 @@ end
 function Field:clear()
 	self.zones = {}
 	self:generateZones()
+end
+
+function Field:makeShipInvincible(i)
+	if self.ships[i] ~= nil then
+		self.ships[i].invincibleTimer = SHIP_INVINCIBLE_TIME
+	end
 end
 
 return Field

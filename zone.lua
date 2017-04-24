@@ -55,6 +55,7 @@ function Zone:draw(clock)
 
 	local lineWidth = (self.outerRadius - self.innerRadius)
 	local radius = self.innerRadius + (lineWidth / 2)
+	local outerRadius = self.innerRadius + lineWidth
 
 	local fillStart = self.startRadians
 	local fillEnd = self.endRadians
@@ -79,8 +80,6 @@ function Zone:draw(clock)
 
 	love.graphics.setColor(unpack(color))
 
-	local blurSize = math.rad(ZONE_BLUR_SIZE)
-
 	love.graphics.arc(
 		'line',
 		'open',
@@ -92,36 +91,111 @@ function Zone:draw(clock)
 		SEGMENTS
 	)
 
-	if clock.eighth_count % 2 == 1 then
-		-- blur
+	if DO_BLUR then
+		local blurSize = math.rad(ZONE_BLUR_SIZE)
 
-		love.graphics.setColor(color[1], color[2], color[3], ZONE_BLUR_INTENSITY)
-		love.graphics.setLineWidth(lineWidth + 10)
+		local nextPulse = field:getZone(self.ring, self.slice + 1):getPulse()
+		local prevPulse = field:getZone(self.ring, self.slice -1):getPulse()
 
-		love.graphics.arc(
-			'line',
-			'open',
-			self.center.x,
-			self.center.y,
-			radius,
-			fillStart - blurSize / 2,
-			fillEnd + blurSize / 2,
-			SEGMENTS
-		)
+		local blurAmt = (clock.quarter_count % 2) + 0.5
 
-		love.graphics.setLineWidth(lineWidth + 15)
+		if not self:getPulse():isFilled() or nextPulse == nil or not nextPulse:isFilled() then
+			self:drawBlurSide(1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
+		end
 
-		love.graphics.arc(
-			'line',
-			'open',
-			self.center.x,
-			self.center.y,
-			radius,
-			fillStart - blurSize,
-			fillEnd + blurSize,
-			SEGMENTS
-		)
+		if not self:getPulse():isFilled() or prevPulse == nil or not prevPulse:isFilled() then
+			self:drawBlurSide(-1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
+		end
+
+		local prevZone = field:getZone(self.ring - 1, self.slice)
+		if prevZone ~= nil and prevZone:getPulse() == nil then
+			self:drawBlurInOut(-1, self.innerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
+		end
+
+		local nextZone = field:getZone(self.ring + 1, self.slice)
+		if nextZone ~= nil and nextZone:getPulse() == nil then
+			self:drawBlurInOut(1, outerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
+		end
 	end
+end
+
+function Zone:drawBlurInOut(direction, radius, fillStart, fillEnd, color, blurSize)
+	local adjust = 0  -- prevent overlap
+	if direction == -1 then
+		if self.ring < 5 then
+			adjust = math.rad(0.75)
+		else
+			adjust = math.rad(0.2)
+		end
+	else
+		if self.ring < 5 then
+			adjust = math.rad(0.5)
+		else
+			adjust = math.rad(0.1)
+		end
+	end
+
+	love.graphics.setColor(
+		color[1],
+		color[2],
+		color[3],
+		ZONE_BLUR_INTENSITY
+	)
+
+	love.graphics.setLineWidth(ZONE_BLUR_SIZE)
+
+	love.graphics.arc(
+		'line',
+		'open',
+		self.center.x,
+		self.center.y,
+		radius + ((blurSize / 2) * direction),
+		fillStart + adjust,
+		fillEnd - adjust,
+		BLUR_SEGMENTS
+	)
+
+	love.graphics.arc(
+		'line',
+		'open',
+		self.center.x,
+		self.center.y,
+		radius + (blurSize * direction),
+		fillStart + adjust,
+		fillEnd - adjust,
+		BLUR_SEGMENTS
+	)
+
+end
+
+function Zone:drawBlurSide(direction, radius, fillStart, fillEnd, color, lineWidth, blurSize)
+	love.graphics.setLineWidth(lineWidth)
+	love.graphics.setColor(
+		color[1],
+		color[2],
+		color[3],
+		ZONE_BLUR_INTENSITY
+	)
+	love.graphics.arc(
+		'line',
+		'open',
+		self.center.x,
+		self.center.y,
+		radius,
+		fillStart + (math.rad(blurSize / 2) * direction),
+		fillEnd + (math.rad(blurSize / 2) * direction),
+		BLUR_SEGMENTS
+	)
+	love.graphics.arc(
+		'line',
+		'open',
+		self.center.x,
+		self.center.y,
+		radius,
+		fillStart + (math.rad(blurSize) * direction),
+		fillEnd + (math.rad(blurSize) * direction),
+		BLUR_SEGMENTS
+	)
 end
 
 

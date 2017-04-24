@@ -68,7 +68,8 @@ gameState = STATE_MENU
 field = Field:new(16, 32, MAXRADIUS)
 playerSystem = PlayerSystem:new()
 menu = Menu:new()
-joystick = (love.joystick.getJoysticks())[1]
+local joysticks = love.joystick.getJoysticks()
+joystick = joysticks[1]
 
 name, version, vendor, device = love.graphics.getRendererInfo()
 

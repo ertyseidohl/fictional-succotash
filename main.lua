@@ -252,6 +252,16 @@ function love.keypressed(key)
 		musicsystem:adjustDown()
 	end
 
+	if key == "q" then
+		musicsystem:switchTrack()
+	end
+	if key == "w" then
+		musicsystem:gameStart()
+	end
+	if key == "e" then
+		musicsystem:gameOver()
+	end
+
 	if key == "i" then
 		playerSystem:addCredit()
 	end

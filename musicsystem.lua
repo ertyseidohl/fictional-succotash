@@ -3,8 +3,17 @@ local MusicSystem = class("MusicSystem")
 MUSIC_LAGTIME_ADJUST = 0.0005
 
 function MusicSystem:initialize()
-	self.track = love.audio.newSource("media/music/PizzaLasers.wav", "static")
-	self.track:setLooping(true)
+	self.tracka = love.audio.newSource("media/music/PizzaLasers.wav", "static")
+	self.tracka:setLooping(true)
+
+	self.trackb = love.audio.newSource("media/music/BarcadeFrenzy.wav", "static")
+	self.trackb:setLooping(true)
+
+	self.track = self.tracka
+
+	self.gstart = love.audio.newSource("media/music/GETREADY.wav", "static")
+	self.gover = love.audio.newSource("media/music/GAMEOVER.wav", "static")
+
 	self.songTime = 0
 	self.songLastTime = 0
 	self.lagtime = 0.0065
@@ -12,6 +21,26 @@ end
 
 function MusicSystem:play()
 	love.audio.play(self.track)
+end
+
+function MusicSystem:switchTrack()
+	if self.tracka:isPlaying() then
+		love.audio.stop(self.tracka)
+		love.audio.play(self.trackb)
+		self.track = self.trackb
+	else
+		love.audio.stop(self.trackb)
+		love.audio.play(self.tracka)
+		self.track = self.tracka
+	end
+end
+
+function MusicSystem:gameOver()
+	love.audio.play(self.gover)
+end
+
+function MusicSystem:gameStart()
+	love.audio.play(self.gstart)
 end
 
 function MusicSystem:update(dt)

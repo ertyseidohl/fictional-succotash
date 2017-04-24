@@ -244,10 +244,9 @@ function resurrectGame()
 	gameOverDevilSize = 0
 end
 
-function love.joystickpressed(joystick, button)
-	--debug
-	if gameState == STATE_MENU then
-		startGame()
+function love.joystickaxis(js, axis, val)
+	if axis == 2 and val == -1 then
+		playerSystem:addCredit()
 	end
 end
 

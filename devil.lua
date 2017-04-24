@@ -29,6 +29,10 @@ function Devil:initialize(field)
 		fire = fireAttack
 	}
 
+	self.handFinalMoveMap = {
+		beam = beam
+	}
+
 	self.handConfig = {
 		snap = {
 			beats = 4,
@@ -38,6 +42,12 @@ function Devil:initialize(field)
 				'even', 'unison', 'fan'
 			},
 			formationsLength = 3,
+			attackStrategy = 'none',
+		},
+		recover = {
+			beats = 4,
+			nextState = 'action',
+			formationStategy = 'inherit',
 			attackStrategy = 'none',
 		},
 		action = {
@@ -52,16 +62,20 @@ function Devil:initialize(field)
 		},
 		beamEasy = {
 			beats = 4,
-			nextState = 'snap',
+			nextState = 'recover',
 			formationStrategy = 'change',
 			formations = {
 				'unison'
 			},
 			formationsLength = 1,
 			attackStrategy = 'none',
+			finalMove = 'beam',
+			holdPosition = true,
 		}
 	}
 
+	self.handNextStateOveride = false
+	self.handNextStateOverideBeatCount = 0
 	self.handState = 'snap'
 	self.handBeatClock = 0
 	self.handFormation = 'none'
@@ -85,10 +99,17 @@ function Devil:draw()
 	end
 end
 
+function Devil:prepBeam(slice)
+	if self.handNextStateOverideBeatCount <= 0 then
+		self.handNextStateOveride = {nextState = 'beamEasy', offset = (slice - 2 % field.slices)}
+		self.handNextStateOverideBeatCount = 32
+	end  -- beamEasy should be advanced in later stages of the game
+end
+
 function Devil:handAI(clock)
 	local changeState = false
 
-	if clock.is_on_half then
+	if clock.is_on_half and not self.handConfig[self.handState].holdPosition then
 		self.handPositionOffset = self.handPositionOffset + self.rotationVelocity
 		if clock.half_count % 2 == 0 then
 			self.rotationVelocity = math.random(5) - 3
@@ -97,10 +118,23 @@ function Devil:handAI(clock)
 
 	if clock.is_on_quarter then
 		self.handBeatClock = self.handBeatClock + 1
+		self.handNextStateOverideBeatCount = self.handNextStateOverideBeatCount - 1
 	end
 
 	if self.handBeatClock == self.handConfig[self.handState].beats then
-		self.handState = self.handConfig[self.handState].nextState
+
+		if self.handConfig[self.handState].finalMove then
+			self.handFinalMoveMap[self.handConfig[self.handState].finalMove](self)
+		end
+
+		if not self.handNextStateOveride then
+			self.handState = self.handConfig[self.handState].nextState
+		else
+			self.handState = self.handNextStateOveride.nextState
+			self.handPositionOffset = self.handNextStateOveride.offset
+			self.handNextStateOveride = false
+		end
+
 		self.handBeatClock = 0
 
 		self:changeFormation()
@@ -203,15 +237,26 @@ function fanOut(numHands, numSlices)
 end
 
 
---atacks
-
+--attacks
 function noneAttack(hand)
-
+	-- pass
 end
 
 function fireAttack(clock, hand)
 	if clock.is_on_quarter then
 		hand:fire()
+	end
+end
+
+
+--final moves
+function beam(self)
+	local slice = self.handPositionOffset + 2 % field.slices  -- that magic 2 fixes a bug elsewhere
+	for i = 1, field.rings, 1 do
+		field:getZone(i, slice):dropPulses()
+		if i < field.rings - 2 then
+			field:fillZone(100, i, slice, self.hands[1], true)
+		end
 	end
 end
 

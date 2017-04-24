@@ -38,6 +38,7 @@ function Zone:initialize(ring, slice, center, startRadians, endRadians, innerRad
 	}
 
 	self.pulses = {}
+	self.pulseCount = 0
 	self.nextPulses = {}
 	self.nextPulsesCount = 0
 
@@ -157,6 +158,9 @@ function Zone:update(dt, clock)
 						end
 					else
 						nextZone:dropPulses()
+						if not nextPulse:isFilled() then
+							nextZone:putPulse(pulse)
+						end
 					end
 				end
 			end
@@ -168,8 +172,10 @@ function Zone:postUpdate(dt, clock)
 
 	if self.nextPulsesCount > 1 then
 		self.nextPulses = {}
+		self.nextPulsesCount = 0
 	end
 
+	self.pulseCount = self.nextPulsesCount
 	self.nextPulsesCount = 0
 	self.pulses = self.nextPulses
 	self.nextPulses = {}
@@ -198,11 +204,16 @@ end
 
 function Zone:dropPulses()
 	self.pulses = {}
+	self.pulseCount = 0
 	self.isStopped = false
 end
 
 function Zone:fill(dt, ship, fromInner)
+
 	if self.pulses[ship.number] == nil then
+		if self.pulseCount > 0 then
+			return
+		end
 		self.pulses[ship.number] = Pulse:new(ship, FILL_SPEED, self.startRadians, fromInner)
 	end
 	self.pulses[ship.number]:fill(dt)

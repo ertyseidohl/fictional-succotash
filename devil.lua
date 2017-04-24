@@ -29,7 +29,7 @@ function Devil:initialize(field)
 		fire = fireAttack
 	}
 
-	self.handFormationConfig = {
+	self.handConfig = {
 		snap = {
 			beats = 4,
 			nextState = 'action',
@@ -49,6 +49,16 @@ function Devil:initialize(field)
 				'fire'
 			},
 			attacksLength = 1
+		},
+		beamEasy = {
+			beats = 4,
+			nextState = 'snap',
+			formationStrategy = 'change',
+			formations = {
+				'unison'
+			},
+			formationsLength = 1,
+			attackStrategy = 'none',
 		}
 	}
 
@@ -89,8 +99,8 @@ function Devil:handAI(clock)
 		self.handBeatClock = self.handBeatClock + 1
 	end
 
-	if self.handBeatClock == self.handFormationConfig[self.handState].beats then
-		self.handState = self.handFormationConfig[self.handState].nextState
+	if self.handBeatClock == self.handConfig[self.handState].beats then
+		self.handState = self.handConfig[self.handState].nextState
 		self.handBeatClock = 0
 
 		self:changeFormation()
@@ -103,7 +113,7 @@ function Devil:handAI(clock)
 end
 
 function Devil:changeFormation()
-	local config = self.handFormationConfig[self.handState]
+	local config = self.handConfig[self.handState]
 	if config.formationStrategy == 'change' then
 		self.handFormation = config.formations[math.random(config.formationsLength)]
 		local targetSlices = self.handFormationMap[self.handFormation](self.handCount, field.slices)
@@ -117,7 +127,7 @@ function Devil:changeFormation()
 end
 
 function Devil:changeAttack()
-	local config = self.handFormationConfig[self.handState]
+	local config = self.handConfig[self.handState]
 	if config.attackStrategy == 'change' then
 		self.handAttack = config.attacks[math.random(config.attacksLength)]
 	else

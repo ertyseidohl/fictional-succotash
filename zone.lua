@@ -80,8 +80,6 @@ function Zone:draw(clock)
 
 	love.graphics.setColor(unpack(color))
 
-	local blurSize = math.rad(ZONE_BLUR_SIZE)
-
 	love.graphics.arc(
 		'line',
 		'open',
@@ -93,27 +91,31 @@ function Zone:draw(clock)
 		SEGMENTS
 	)
 
-	local nextPulse = field:getZone(self.ring, self.slice + 1):getPulse()
-	local prevPulse = field:getZone(self.ring, self.slice -1):getPulse()
+	if DO_BLUR then
+		local blurSize = math.rad(ZONE_BLUR_SIZE)
 
-	local blurAmt = (clock.quarter_count % 2) + 0.5
+		local nextPulse = field:getZone(self.ring, self.slice + 1):getPulse()
+		local prevPulse = field:getZone(self.ring, self.slice -1):getPulse()
 
-	if not self:getPulse():isFilled() or nextPulse == nil or not nextPulse:isFilled() then
-		self:drawBlurSide(1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
-	end
+		local blurAmt = (clock.quarter_count % 2) + 0.5
 
-	if not self:getPulse():isFilled() or prevPulse == nil or not prevPulse:isFilled() then
-		self:drawBlurSide(-1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
-	end
+		if not self:getPulse():isFilled() or nextPulse == nil or not nextPulse:isFilled() then
+			self:drawBlurSide(1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
+		end
 
-	local prevZone = field:getZone(self.ring - 1, self.slice)
-	if prevZone ~= nil and prevZone:getPulse() == nil then
-		self:drawBlurInOut(-1, self.innerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
-	end
+		if not self:getPulse():isFilled() or prevPulse == nil or not prevPulse:isFilled() then
+			self:drawBlurSide(-1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
+		end
 
-	local nextZone = field:getZone(self.ring + 1, self.slice)
-	if nextZone ~= nil and nextZone:getPulse() == nil then
-		self:drawBlurInOut(1, outerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
+		local prevZone = field:getZone(self.ring - 1, self.slice)
+		if prevZone ~= nil and prevZone:getPulse() == nil then
+			self:drawBlurInOut(-1, self.innerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
+		end
+
+		local nextZone = field:getZone(self.ring + 1, self.slice)
+		if nextZone ~= nil and nextZone:getPulse() == nil then
+			self:drawBlurInOut(1, outerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
+		end
 	end
 end
 

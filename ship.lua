@@ -29,25 +29,6 @@ function Ship:draw(clock)
 		y = point.y + (math.sin(self.angle - SHIP_RADIAL_WIDTH) * SHIP_HEIGHT),
 	}
 
-
-	local blurAmt = ((clock.quarter_count + 1) % 2)
-	local blurSize = (SHIP_HEIGHT + (SHIP_BLUR_SIZE * 2)) * blurAmt
-
-	local pointBlur = {
-		x = field.center.x + (math.cos(self.angle) * (field.maxRadius / 2 + SHIP_BUFFER - SHIP_BLUR_SIZE)),
-		y = field.center.y + (math.sin(self.angle) * (field.maxRadius / 2 + SHIP_BUFFER - SHIP_BLUR_SIZE))
-	}
-
-	local rightArmBlur = {
-		x = pointBlur.x + (math.cos(self.angle - SHIP_RADIAL_WIDTH) * blurSize),
-		y = pointBlur.y + (math.sin(self.angle - SHIP_RADIAL_WIDTH) * blurSize),
-	}
-
-	local leftArmBlur = {
-		x = pointBlur.x + (math.cos(self.angle + SHIP_RADIAL_WIDTH) * blurSize),
-		y = pointBlur.y + (math.sin(self.angle + SHIP_RADIAL_WIDTH) * blurSize),
-	}
-
 	if self.invincibleTimer > 0 and self.invincibleTimer % 2 == 0 then
 		love.graphics.setColor({255, 255, 255, 255})
 	else
@@ -73,29 +54,48 @@ function Ship:draw(clock)
 		)
 	end
 
-	love.graphics.setColor(self.color[1], self.color[2], self.color[3], SHIP_BLUR_INTENSITY)
+	if DO_BLUR then
+		local blurAmt = ((clock.quarter_count + 1) % 2)
+		local blurSize = (SHIP_HEIGHT + (SHIP_BLUR_SIZE * 2)) * blurAmt
 
-	love.graphics.polygon('fill', {
-		leftArmBlur.x, leftArmBlur.y,
-		pointBlur.x, pointBlur.y,
-		rightArmBlur.x, rightArmBlur.y
-	})
+		local pointBlur = {
+			x = field.center.x + (math.cos(self.angle) * (field.maxRadius / 2 + SHIP_BUFFER - SHIP_BLUR_SIZE)),
+			y = field.center.y + (math.sin(self.angle) * (field.maxRadius / 2 + SHIP_BUFFER - SHIP_BLUR_SIZE))
+		}
 
-	local blurRadians = math.rad(5) * blurAmt
-	love.graphics.setLineWidth((SHIP_LIFE_LINE_WIDTH + SHIP_BLUR_SIZE) * blurAmt)
+		local rightArmBlur = {
+			x = pointBlur.x + (math.cos(self.angle - SHIP_RADIAL_WIDTH) * blurSize),
+			y = pointBlur.y + (math.sin(self.angle - SHIP_RADIAL_WIDTH) * blurSize),
+		}
 
-	for i = 1, self.lives, 1 do
-		love.graphics.arc(
-			'line',
-			'open',
-			point.x,
-			point.y,
-			SHIP_HEIGHT + (SHIP_LIFE_LINE_BUFFER * i),
-			self.angle - SHIP_LIFE_LINE_ANGLE - blurRadians,
-			self.angle + SHIP_LIFE_LINE_ANGLE + blurRadians
-		)
+		local leftArmBlur = {
+			x = pointBlur.x + (math.cos(self.angle + SHIP_RADIAL_WIDTH) * blurSize),
+			y = pointBlur.y + (math.sin(self.angle + SHIP_RADIAL_WIDTH) * blurSize),
+		}
+
+		love.graphics.setColor(self.color[1], self.color[2], self.color[3], SHIP_BLUR_INTENSITY)
+
+		love.graphics.polygon('fill', {
+			leftArmBlur.x, leftArmBlur.y,
+			pointBlur.x, pointBlur.y,
+			rightArmBlur.x, rightArmBlur.y
+		})
+
+		local blurRadians = math.rad(5) * blurAmt
+		love.graphics.setLineWidth((SHIP_LIFE_LINE_WIDTH + SHIP_BLUR_SIZE) * blurAmt)
+
+		for i = 1, self.lives, 1 do
+			love.graphics.arc(
+				'line',
+				'open',
+				point.x,
+				point.y,
+				SHIP_HEIGHT + (SHIP_LIFE_LINE_BUFFER * i),
+				self.angle - SHIP_LIFE_LINE_ANGLE - blurRadians,
+				self.angle + SHIP_LIFE_LINE_ANGLE + blurRadians
+			)
+		end
 	end
-
 end
 
 function Ship:isAlive()

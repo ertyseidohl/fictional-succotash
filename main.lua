@@ -57,6 +57,7 @@ SCORE_BOXES = {
 	{x = WIDTH - SCORE_BOX_BUFFER, y = HEIGHT - SCORE_BOX_BUFFER},
 }
 
+DO_BLUR = false
 BLUR_SEGMENTS = 3
 ZONE_BLUR_SIZE = 2
 ZONE_BLUR_INTENSITY = 64 -- opacity of outermost blur out of 255

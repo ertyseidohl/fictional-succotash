@@ -138,11 +138,12 @@ function Field:drawCircles(clock)
 			love.graphics.setColor(GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], 255 - (self.rings - ring) * 10)
 			love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
 
-			--blur
-			for i = 1, 4, 1 do
-				love.graphics.setColor({GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], RING_BLUR_INTENSITY - (self.rings - ring) * 10})
-				love.graphics.setLineWidth(RING_BLUR_SIZE * i)
-				love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
+			if DO_BLUR then
+				for i = 1, 4, 1 do
+					love.graphics.setColor({GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], RING_BLUR_INTENSITY - (self.rings - ring) * 10})
+					love.graphics.setLineWidth(RING_BLUR_SIZE * i)
+					love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
+				end
 			end
 		end
 	end

@@ -3,8 +3,8 @@ class = require 'lib/middleclass'
 -- global settings
 BPM = 300 -- debug
 BPS = BPM / 60
-WIDTH = 1366
-HEIGHT = 768
+WIDTH = 1280
+HEIGHT = 1024
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
 INNER_RINGS = 3
 PLAYER_COLORS = {

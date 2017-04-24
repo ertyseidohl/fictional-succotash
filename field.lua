@@ -129,8 +129,16 @@ function Field:drawCircles(clock)
 	for ring = math.max(INNER_RINGS - 1, 1), self.rings, 1 do
 		local zoneRing = self:getZone(ring, 1)
 		if (ring - clock.eighth_count) % 4 == 0 then
+			love.graphics.setLineWidth(RING_LINE_WIDTH)
 			love.graphics.setColor(GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], 255 - (self.rings - ring) * 10)
 			love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
+
+			--blur
+			for i = 1, 4, 1 do
+				love.graphics.setColor({GRID_COLOR[1], GRID_COLOR[2], GRID_COLOR[3], RING_BLUR_INTENSITY - (self.rings - ring) * 10})
+				love.graphics.setLineWidth(RING_BLUR_SIZE * i)
+				love.graphics.circle('line', self.center.x, self.center.y, zoneRing.outerRadius, FIELD_SEGMENTS)
+			end
 		end
 	end
 end

@@ -48,13 +48,20 @@ COIN_ACCENT = {220, 220, 230, 200}
 SCORE_INCREMENT = 66
 SCORE_CENTER_RING = 101
 SCORE_FULL_RING = 999
+SCORE_BOX_BUFFER = 20
 
 SCORE_BOXES = {
-	{x = 20,               y = 20},
-	{x = 20,               y = HEIGHT - 20},
-	{x = WIDTH - 20, y = 20},
-	{x = WIDTH - 20, y = HEIGHT - 20},
+	{x = SCORE_BOX_BUFFER, y = SCORE_BOX_BUFFER},
+	{x = SCORE_BOX_BUFFER, y = HEIGHT - SCORE_BOX_BUFFER},
+	{x = WIDTH - SCORE_BOX_BUFFER, y = SCORE_BOX_BUFFER},
+	{x = WIDTH - SCORE_BOX_BUFFER, y = HEIGHT - SCORE_BOX_BUFFER},
 }
+
+ZONE_BLUR_SIZE = 2
+ZONE_BLUR_INTENSITY = 64 -- opacity of outermost blur out of 255
+RING_BLUR_SIZE = 5 -- in pixels
+RING_BLUR_INTENSITY = 64
+RING_LINE_WIDTH = 2
 
 -- states
 STATE_MENU = 0
@@ -117,7 +124,6 @@ local postEffect = nil
 --debug
 debug_print_keypresses = false
 
-
 function love.load()
 	print(name,5,5)
 	print(version,5,15)
@@ -125,14 +131,10 @@ function love.load()
 	print(device ,5,35)
 
 	musicsystem = MusicSystem:new()
-	postEffect = Shine.boxblur()
 end
 
 function love.draw()
 	if gameState == STATE_PLAYING then
-		postEffect:draw(function()
-			field:draw(clock)
-		end)
 		field:draw(clock)
 	elseif gameState == STATE_MENU then
 		menu:draw(clock)
@@ -238,6 +240,13 @@ end
 function resurrectGame()
 	gameState = STATE_PLAYING
 	gameOverDevilSize = 0
+end
+
+function love.joystickpressed(joystick, button)
+	--debug
+	if gameState == STATE_MENU then
+		startGame()
+	end
 end
 
 -- debug

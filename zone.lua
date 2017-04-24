@@ -75,7 +75,10 @@ function Zone:draw(clock)
 	end
 
 	love.graphics.setLineWidth(lineWidth)
+
 	love.graphics.setColor(unpack(color))
+
+	local blurSize = math.rad(ZONE_BLUR_SIZE)
 
 	love.graphics.arc(
 		'line',
@@ -87,6 +90,37 @@ function Zone:draw(clock)
 		fillEnd,
 		SEGMENTS
 	)
+
+	if clock.eighth_count % 2 == 1 then
+		-- blur
+
+		love.graphics.setColor(color[1], color[2], color[3], ZONE_BLUR_INTENSITY)
+		love.graphics.setLineWidth(lineWidth + 10)
+
+		love.graphics.arc(
+			'line',
+			'open',
+			self.center.x,
+			self.center.y,
+			radius,
+			fillStart - blurSize / 2,
+			fillEnd + blurSize / 2,
+			SEGMENTS
+		)
+
+		love.graphics.setLineWidth(lineWidth + 15)
+
+		love.graphics.arc(
+			'line',
+			'open',
+			self.center.x,
+			self.center.y,
+			radius,
+			fillStart - blurSize,
+			fillEnd + blurSize,
+			SEGMENTS
+		)
+	end
 end
 
 

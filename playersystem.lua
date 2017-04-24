@@ -1,10 +1,10 @@
 local PlayerSystem = class('PlayerSystem')
 
 function PlayerSystem:initialize()
-	self.credits = 0
+	self.credits = 1 -- DEBUG
 
 	self.playerStates = {
-		PLAYER_STATE_NONE,
+		PLAYER_STATE_ALIVE, -- DEBUG
 		PLAYER_STATE_NONE,
 		PLAYER_STATE_NONE,
 		PLAYER_STATE_NONE

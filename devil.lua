@@ -75,6 +75,7 @@ function Devil:initialize(field)
 	}
 
 	self.handNextStateOveride = false
+	self.handNextStateOverideBeatCount = 0
 	self.handState = 'snap'
 	self.handBeatClock = 0
 	self.handFormation = 'none'
@@ -99,7 +100,10 @@ function Devil:draw()
 end
 
 function Devil:prepBeam(slice)
-	self.handNextStateOveride = {nextState = 'beamEasy', offset = slice}  -- beamEasy should be advanced in later stages of the game
+	if self.handNextStateOverideBeatCount <= 0 then
+		self.handNextStateOveride = {nextState = 'beamEasy', offset = (slice - 2 % field.slices)}
+		self.handNextStateOverideBeatCount = 32
+	end  -- beamEasy should be advanced in later stages of the game
 end
 
 function Devil:handAI(clock)
@@ -114,6 +118,7 @@ function Devil:handAI(clock)
 
 	if clock.is_on_quarter then
 		self.handBeatClock = self.handBeatClock + 1
+		self.handNextStateOverideBeatCount = self.handNextStateOverideBeatCount - 1
 	end
 
 	if self.handBeatClock == self.handConfig[self.handState].beats then
@@ -244,10 +249,14 @@ function fireAttack(clock, hand)
 end
 
 
---final move
+--final moves
 function beam(self)
+	local slice = self.handPositionOffset + 2 % field.slices  -- that magic 2 fixes a bug elsewhere
 	for i = 1, field.rings, 1 do
-		field:fillZone(100, i, self.handPositionOffset + 2 % field.slices, self.hands[1], true)  -- that magic 2 fixes a bug elsewhere
+		field:getZone(i, slice):dropPulses()
+		if i < field.rings - 2 then
+			field:fillZone(100, i, slice, self.hands[1], true)
+		end
 	end
 end
 

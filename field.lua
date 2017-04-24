@@ -188,18 +188,39 @@ function Field:update(dt, clock)
 		end
 	end
 
-	--  scoring
+	--  studying the field for scoring and ai
 	local slice_count = 0
 	local player_slice_counts = {0, 0, 0, 0}
+	local overfilledSlice = false
+	local overfilledSliceCount = 0
 	if clock.is_on_quarter then
 		for i = 1, self.slices, 1 do
-			pulse =  self:getZone(INNER_RINGS, i):getPulse()
+			pulse = self:getZone(INNER_RINGS, i):getPulse()
+			local ringCount = 0
+
 			if pulse ~= nil and pulse.ship.number < 5 then
 				playerSystem:incrementScore(pulse.ship.number, SCORE_CENTER_RING)
 				slice_count = slice_count + 1
 				player_slice_counts[pulse.ship.number] = player_slice_counts[pulse.ship.number] + 1
+				ringCount = 1
+			end
+
+			for j = INNER_RINGS + 1, self.rings, 1 do
+				pulse = self:getZone(INNER_RINGS, i):getPulse()
+				if pulse ~= nil and pulse.ship.number < 5 then
+					ringCount = ringCount + 1
+				end
+			end
+
+			if ringCount > math.min(self.rings / 2, overfilledSliceCount) then
+				overfilledSlice = i
+				overfilledSliceCount = ringCount
 			end
 		end
+	end
+
+	if overfilledSliceCount > 0 then
+		self.devil:prepBeam(overfilledSlice)
 	end
 
 	if clock.is_on_whole and slice_count == self.slices then

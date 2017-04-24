@@ -3,8 +3,30 @@ local MusicSystem = class("MusicSystem")
 MUSIC_LAGTIME_ADJUST = 0.0005
 
 function MusicSystem:initialize()
+	self.tracka = nil
+	self.trackb = nil
+	self.startScreen = nil
+
+	self.track = self.tracka
+	self.inGame = false
+
+	self.gstart = nil
+	self.gover = nil
+
+	self.hitfx = nil
+	self.diefx = nil
+	self.firefx = nil
+
+	self.songTime = 0
+	self.songLastTime = 0
+	self.lagtime = 0.0065
+end
+
+function MusicSystem:load()
 	self.tracka = love.audio.newSource("media/music/PizzaLasers.wav", "static")
 	self.tracka:setLooping(true)
+
+	self.track = self.tracka
 
 	self.trackb = love.audio.newSource("media/music/BarcadeFrenzy.wav", "static")
 	self.trackb:setLooping(true)
@@ -12,15 +34,12 @@ function MusicSystem:initialize()
 	self.startScreen = love.audio.newSource("media/music/ChooseYourCharacter.wav")
 	self.startScreen:setLooping(true)
 
-	self.track = self.tracka
-	self.inGame = false
-
 	self.gstart = love.audio.newSource("media/music/GETREADY.wav", "static")
 	self.gover = love.audio.newSource("media/music/GAMEOVER.wav", "static")
 
-	self.songTime = 0
-	self.songLastTime = 0
-	self.lagtime = 0.0065
+	self.hitfx = love.audio.newSource("media/SFX/HIT.wav", "static")
+	self.diefx = love.audio.newSource("media/SFX/V9KO.wav", "static")
+	self.firefx = love.audio.newSource("media/SFX/SHOOT.wav", "static")
 end
 
 function MusicSystem:play()
@@ -29,6 +48,18 @@ function MusicSystem:play()
 	else
 		love.audio.play(self.startScreen)
 	end
+end
+
+function MusicSystem:hit()
+	love.audio.play(self.hitfx)
+end
+
+function MusicSystem:die()
+	love.audio.play(self.diefx)
+end
+
+function MusicSystem:fire()
+	love.audio.play(self.firefx)
 end
 
 function MusicSystem:switchTrack()

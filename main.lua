@@ -92,7 +92,8 @@ local gameOverDevilSize = 0
 
 -- global objects
 gameState = STATE_MENU
-field = Field:new(16, 32, MAXRADIUS)
+musicsystem = MusicSystem:new()
+field = Field:new(16, 32, MAXRADIUS, musicsystem)
 playerSystem = PlayerSystem:new()
 menu = Menu:new()
 local joysticks = love.joystick.getJoysticks()
@@ -117,8 +118,6 @@ local clock = {
 
 local firstUpdate = true
 
-local musicsystem = nil
-
 local postEffect = nil
 
 --debug
@@ -130,7 +129,7 @@ function love.load()
 	print(vendor,5,25)
 	print(device ,5,35)
 
-	musicsystem = MusicSystem:new()
+	musicsystem:load()
 end
 
 function love.draw()

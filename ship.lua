@@ -1,6 +1,6 @@
 local Ship = class("Ship")
 
-function Ship:initialize(number, color, startAngle, keys)
+function Ship:initialize(number, color, startAngle, keys, sound)
 	self.number = number
 	self.color = color
 	self.angle = startAngle
@@ -8,6 +8,7 @@ function Ship:initialize(number, color, startAngle, keys)
 	self.lives = SHIP_STARTING_LIVES
 	self.invincibleTimer = 0;
 	self.velocity = 0
+	self.soundsystem = sound
 end
 
 function Ship:draw()
@@ -67,6 +68,7 @@ function Ship:update(dt, clock)
 	if love.keyboard.isDown(self.keys.f) or
 		(joystick and joystick:isDown(self.keys.jf))
 	then
+		--musicsystem:fire()
 		field:fill(dt, self)
 	end
 
@@ -99,6 +101,11 @@ function Ship:loseLife()
 	if self.invincibleTimer == 0 then
 		self.lives = self.lives - 1
 		self.invincibleTimer = SHIP_INVINCIBLE_TIME
+		if self.lives < 1 then
+			self.soundsystem:die()
+		else
+			self.soundsystem:hit()
+		end
 	end
 end
 

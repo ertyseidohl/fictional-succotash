@@ -64,13 +64,19 @@ function Ship:update(dt, clock)
 		return
 	end
 
-	if (love.keyboard.isDown(self.keys.f)) then
+	if love.keyboard.isDown(self.keys.f) or
+		joystick:isDown(self.keys.jf)
+	then
 		field:fill(dt, self)
 	end
 
-	if love.keyboard.isDown(self.keys.c) then
+	if love.keyboard.isDown(self.keys.c) or
+		joystick:isDown(self.keys.jc)
+	then
 		self.velocity = self.velocity + SHIP_ACCELERATION
-	elseif love.keyboard.isDown(self.keys.cc) then
+	elseif love.keyboard.isDown(self.keys.cc) or
+		joystick:isDown(self.keys.jcc)
+	then
 		self.velocity = self.velocity - SHIP_ACCELERATION
 	else
 		self.velocity = self.velocity * SHIP_FRICTION

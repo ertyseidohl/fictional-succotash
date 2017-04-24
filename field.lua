@@ -28,16 +28,16 @@ end
 
 function Field:addShip(player)
 	if player == 1 then
-		self.ships[1] = Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's'})
+		self.ships[1] = Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, {cc = 'z', c = 'x', f = 's', jcc = 1, jc = 2, jf = 3})
 	end
 	if player == 2 then
-		self.ships[2] = Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f'})
+		self.ships[2] = Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, {cc = 'c', c = 'v', f = 'f', jcc = 4, jc = 5, jf = 6})
 	end
 	if player == 3 then
-		self.ships[3] = Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h'})
+		self.ships[3] = Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, {cc = 'b', c = 'n', f = 'h', jcc = 7, jc = 8, jf = 9})
 	end
 	if player == 4 then
-		self.ships[4] = Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k'})
+		self.ships[4] = Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, {cc = 'm', c = ',', f = 'k', jcc = 10, jc = 11, jf = 12})
 	end
 end
 

@@ -219,11 +219,13 @@ function love.update(dt)
 end
 
 function startGame()
+	musicsystem:gameStart()
 	gameState = STATE_PLAYING
 	field:buildShips(playerSystem.playerStates)
 end
 
 function endGame()
+	musicsystem:gameOver()
 	love.graphics.setCanvas(screenCapCanvas)
 		love.graphics.clear()
 		field:draw(clock)
@@ -259,6 +261,16 @@ function love.keypressed(key)
 		musicsystem:adjustUp()
 	elseif key == "o" then
 		musicsystem:adjustDown()
+	end
+
+	if key == "q" then
+		musicsystem:switchTrack()
+	end
+	if key == "w" then
+		musicsystem:gameStart()
+	end
+	if key == "e" then
+		musicsystem:gameOver()
 	end
 
 	if key == "i" then

@@ -18,11 +18,12 @@ function PlayerSystem:initialize()
 	}
 
 	self.playerScores = {
-		0,
-		0,
-		0,
-		0,
+		{score = 0, digits = 1,},
+		{score = 0, digits = 1,},
+		{score = 0, digits = 1,},
+ 		{score = 0, digits = 1,},
 	}
+
 end
 
 function PlayerSystem:addPlayer(player)
@@ -47,13 +48,38 @@ end
 function PlayerSystem:draw()
 
 	for i = 1, 4, 1 do
-		love.graphics.setColor(unpack(TEXT_COLOR))
-		if self.playerStates[i] == PLAYER_STATE_CONTINUE then
-			love.graphics.print("CONTINUE?", 100 * i, HEIGHT - 100)
-			love.graphics.print(self.playerCountdowns[i], 100 * i, HEIGHT - 75)
+		local drawX = SCORE_BOXES[i].x
+		local drawY = SCORE_BOXES[i].y
+
+		if field.ships[i] ~= nil then
+			love.graphics.setColor(unpack(field.ships[i].color))
 		end
 
-		love.graphics.print(self.playerScores[i], 200 * i, HEIGHT - 100)
+		love.graphics.polygon('fill', {
+			drawX, drawY + 8,
+			drawX+9, drawY+28,
+			drawX-9, drawY+28
+		})
+
+		love.graphics.setFont(FONT_LARGE)
+		if i <= 2 then
+			love.graphics.print(self.playerScores[i].score, drawX + 14, drawY)
+		else
+			love.graphics.print(self.playerScores[i].score, drawX - (FONT_LARGE_WIDTH_PIXELS * self.playerScores[i].digits) - 14, drawY)
+		end
+
+		love.graphics.setFont(FONT_MEDIUM)
+		love.graphics.setColor(unpack(TEXT_COLOR))
+		if self.playerStates[i] == PLAYER_STATE_CONTINUE then
+			if i <= 2 then
+				love.graphics.print("CONTINUE?", drawX, drawY + FONT_LARGE_HEIGHT_PIXELS + 4)
+				love.graphics.print(self.playerCountdowns[i], drawX + FONT_MEDIUM_WIDTH_PIXELS * 11 , drawY + FONT_LARGE_HEIGHT_PIXELS + 4)
+			else
+				love.graphics.print("CONTINUE?", drawX - FONT_MEDIUM_WIDTH_PIXELS * 11 , drawY + FONT_LARGE_HEIGHT_PIXELS + 4)
+				love.graphics.print(self.playerCountdowns[i], drawX, drawY + FONT_LARGE_HEIGHT_PIXELS + 4)
+			end
+		end
+
 	end
 
 
@@ -71,7 +97,7 @@ function PlayerSystem:update(dt, clock)
 	if clock.is_on_quarter then
 		for i = 1, 4, 1 do
 			if self.playerStates[i] == PLAYER_STATE_ALIVE then
-				self.playerScores[i] = self.playerScores[i] + SCORE_INCREMENT
+				self:incrementScore(i, SCORE_INCREMENT)
 			end
 		end
 	end
@@ -87,6 +113,31 @@ function PlayerSystem:update(dt, clock)
 
 		if not self:hasPlayers() and gameState == STATE_GAME_OVER then
 			backToMenu()
+		end
+	end
+end
+
+function PlayerSystem:incrementScore(player, increment)
+	if self.playerStates[player] == PLAYER_STATE_ALIVE then
+
+		self.playerScores[player].score = self.playerScores[player].score + increment
+
+		if self.playerScores[player].score < 10 then
+			self.playerScores[player].digits = 1
+		elseif self.playerScores[player].score < 100 then
+			self.playerScores[player].digits = 2
+		elseif self.playerScores[player].score < 1000 then
+			self.playerScores[player].digits = 3
+		elseif self.playerScores[player].score < 10000 then
+			self.playerScores[player].digits = 4
+		elseif self.playerScores[player].score < 100000 then
+			self.playerScores[player].digits = 5
+		elseif self.playerScores[player].score < 1000000 then
+			self.playerScores[player].digits = 6
+		elseif self.playerScores[player].score < 10000000 then
+			self.playerScores[player].digits = 7
+		elseif self.playerScores[player].score < 100000000 then
+			self.playerScores[player].digits = 8
 		end
 	end
 end

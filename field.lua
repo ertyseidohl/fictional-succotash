@@ -92,7 +92,6 @@ function Field:generateZones()
 			true
 		))
 	end
-
 end
 
 -- don't forget these are 1 indexed!
@@ -173,6 +172,26 @@ function Field:update(dt, clock)
 					self.ships[i]:loseLife()
 				end
 			end
+		end
+	end
+
+	--  scoring
+	local slice_count = 0
+	local player_slice_counts = {0, 0, 0, 0}
+	if clock.is_on_quarter then
+		for i = 1, self.slices, 1 do
+			pulse =  self:getZone(INNER_RINGS, i):getPulse()
+			if pulse ~= nil and pulse.ship.number < 5 then
+				playerSystem:incrementScore(pulse.ship.number, SCORE_CENTER_RING)
+				slice_count = slice_count + 1
+				player_slice_counts[pulse.ship.number] = player_slice_counts[pulse.ship.number] + 1
+			end
+		end
+	end
+
+	if clock.is_on_whole and slice_count == self.slices then
+		for i = 1, 4, 1 do
+			playerSystem:incrementScore(i, SCORE_FULL_RING * player_slice_counts[i])
 		end
 	end
 end

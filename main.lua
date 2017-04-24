@@ -45,7 +45,16 @@ COIN_COLOR = {200, 200, 200, 200}
 COIN_ACCENT = {220, 220, 230, 200}
 
 --scoring
-SCORE_INCREMENT = 175
+SCORE_INCREMENT = 66
+SCORE_CENTER_RING = 101
+SCORE_FULL_RING = 999
+
+SCORE_BOXES = {
+	{x = 20,               y = 20},
+	{x = 20,               y = HEIGHT - 20},
+	{x = WIDTH - 20, y = 20},
+	{x = WIDTH - 20, y = HEIGHT - 20},
+}
 
 -- states
 STATE_MENU = 0
@@ -55,6 +64,14 @@ STATE_GAME_OVER = 2
 PLAYER_STATE_NONE = 4
 PLAYER_STATE_ALIVE = 1
 PLAYER_STATE_CONTINUE = 2
+
+FONT_LARGE_HEIGHT_PIXELS = 32
+FONT_LARGE_WIDTH_PIXELS = 20
+FONT_LARGE = love.graphics.newFont(32)
+
+FONT_MEDIUM_HEIGHT_PIXELS = 24
+FONT_MEDIUM_WIDTH_PIXELS = 14
+FONT_MEDIUM = love.graphics.newFont(24)
 
 local Field = require 'field'
 local MusicSystem = require 'musicsystem'

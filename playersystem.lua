@@ -1,10 +1,10 @@
 local PlayerSystem = class('PlayerSystem')
 
 function PlayerSystem:initialize()
-	self.credits = 1 -- DEBUG
+	self.credits = 0
 
 	self.playerStates = {
-		PLAYER_STATE_ALIVE, -- DEBUG
+		PLAYER_STATE_NONE,
 		PLAYER_STATE_NONE,
 		PLAYER_STATE_NONE,
 		PLAYER_STATE_NONE
@@ -31,6 +31,8 @@ function PlayerSystem:addPlayer(player)
 		self:removeCredit()
 	then
 		self:setPlayerState(player, PLAYER_STATE_ALIVE)
+		field:addShip(player)
+		self.playerCountdowns[player] = 0
 	end
 
 	if self.playerStates[player] == PLAYER_STATE_CONTINUE and
@@ -39,6 +41,7 @@ function PlayerSystem:addPlayer(player)
 		self:setPlayerState(player, PLAYER_STATE_ALIVE)
 		field:addShip(player)
 		self.playerCountdowns[player] = 0
+		field:makeShipInvincible(player)
 		if gameState == STATE_GAME_OVER then
 			resurrectGame()
 		end

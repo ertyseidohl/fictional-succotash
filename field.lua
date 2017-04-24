@@ -101,6 +101,11 @@ function Field:getZone(ring, slice)
 	return self.zones[index]
 end
 
+
+function Field:fillZone(dt, ring, slice, ship, fromInner)
+	self:getZone(ring, slice):fill(dt, ship, fromInner)
+end
+
 function Field:fill(dt, ship, fromInner)
 	local zone = nil
 	if (fromInner) then

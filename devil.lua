@@ -90,9 +90,15 @@ function Devil:update(dt, clock)
 	end
 end
 
-function Devil:draw()
+function Devil:draw(clock)
 	love.graphics.setColor(unpack(DEVIL_COLOR))
 	love.graphics.circle('fill', self.center.x, self.center.y, DEVIL_RADIUS, DEVIL_LINE_SEGMENTS)
+
+	love.graphics.setColor(DEVIL_COLOR[1], DEVIL_COLOR[2], DEVIL_COLOR[3], DEVIL_BLUR_INTENSITY)
+
+	for i = 1, clock.quarter_count + 1, 1 do
+		love.graphics.circle('fill', self.center.x, self.center.y, DEVIL_RADIUS + (DEVIL_BLUR_SIZE * i), DEVIL_LINE_SEGMENTS)
+	end
 
 	for _, hand in pairs(self.hands) do
 		hand:draw()

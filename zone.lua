@@ -96,26 +96,28 @@ function Zone:draw(clock)
 	local nextPulse = field:getZone(self.ring, self.slice + 1):getPulse()
 	local prevPulse = field:getZone(self.ring, self.slice -1):getPulse()
 
+	local blurAmt = (clock.quarter_count % 2) + 0.5
+
 	if not self:getPulse():isFilled() or nextPulse == nil or not nextPulse:isFilled() then
-		self:drawBlurSide(1, radius, fillStart, fillEnd, color, lineWidth)
+		self:drawBlurSide(1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
 	end
 
 	if not self:getPulse():isFilled() or prevPulse == nil or not prevPulse:isFilled() then
-		self:drawBlurSide(-1, radius, fillStart, fillEnd, color, lineWidth)
+		self:drawBlurSide(-1, radius, fillStart, fillEnd, color, lineWidth, ZONE_BLUR_SIZE * blurAmt)
 	end
 
 	local prevZone = field:getZone(self.ring - 1, self.slice)
 	if prevZone ~= nil and prevZone:getPulse() == nil then
-		self:drawBlurInOut(-1, self.innerRadius, fillStart, fillEnd, color)
+		self:drawBlurInOut(-1, self.innerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
 	end
 
 	local nextZone = field:getZone(self.ring + 1, self.slice)
 	if nextZone ~= nil and nextZone:getPulse() == nil then
-		self:drawBlurInOut(1, outerRadius, fillStart, fillEnd, color)
+		self:drawBlurInOut(1, outerRadius, fillStart, fillEnd, color, ZONE_BLUR_SIZE * blurAmt)
 	end
 end
 
-function Zone:drawBlurInOut(direction, radius, fillStart, fillEnd, color)
+function Zone:drawBlurInOut(direction, radius, fillStart, fillEnd, color, blurSize)
 	local adjust = 0  -- prevent overlap
 	if direction == -1 then
 		if self.ring < 5 then
@@ -145,7 +147,7 @@ function Zone:drawBlurInOut(direction, radius, fillStart, fillEnd, color)
 		'open',
 		self.center.x,
 		self.center.y,
-		radius + ((ZONE_BLUR_SIZE / 2) * direction),
+		radius + ((blurSize / 2) * direction),
 		fillStart + adjust,
 		fillEnd - adjust,
 		BLUR_SEGMENTS
@@ -156,7 +158,7 @@ function Zone:drawBlurInOut(direction, radius, fillStart, fillEnd, color)
 		'open',
 		self.center.x,
 		self.center.y,
-		radius + (ZONE_BLUR_SIZE * direction),
+		radius + (blurSize * direction),
 		fillStart + adjust,
 		fillEnd - adjust,
 		BLUR_SEGMENTS
@@ -164,7 +166,7 @@ function Zone:drawBlurInOut(direction, radius, fillStart, fillEnd, color)
 
 end
 
-function Zone:drawBlurSide(direction, radius, fillStart, fillEnd, color, lineWidth)
+function Zone:drawBlurSide(direction, radius, fillStart, fillEnd, color, lineWidth, blurSize)
 	love.graphics.setLineWidth(lineWidth)
 	love.graphics.setColor(
 		color[1],
@@ -178,8 +180,8 @@ function Zone:drawBlurSide(direction, radius, fillStart, fillEnd, color, lineWid
 		self.center.x,
 		self.center.y,
 		radius,
-		fillStart + (math.rad(ZONE_BLUR_SIZE / 2) * direction),
-		fillEnd + (math.rad(ZONE_BLUR_SIZE / 2) * direction),
+		fillStart + (math.rad(blurSize / 2) * direction),
+		fillEnd + (math.rad(blurSize / 2) * direction),
 		BLUR_SEGMENTS
 	)
 	love.graphics.arc(
@@ -188,8 +190,8 @@ function Zone:drawBlurSide(direction, radius, fillStart, fillEnd, color, lineWid
 		self.center.x,
 		self.center.y,
 		radius,
-		fillStart + (math.rad(ZONE_BLUR_SIZE) * direction),
-		fillEnd + (math.rad(ZONE_BLUR_SIZE) * direction),
+		fillStart + (math.rad(blurSize) * direction),
+		fillEnd + (math.rad(blurSize) * direction),
 		BLUR_SEGMENTS
 	)
 end

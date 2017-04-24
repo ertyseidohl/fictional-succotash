@@ -10,8 +10,8 @@ INNER_RINGS = 3
 PLAYER_COLORS = {
 	{255,0,0,255},
 	{0,0,255,255},
-	{0,255,0,255},
-	{255,255,0,255}
+	{255,255,0,255},
+	{0,255,0,255}
 }
 TEXT_COLOR = {255, 255, 255, 255}
 
@@ -70,10 +70,10 @@ DEVIL_BLUR_SIZE = 5
 DEVIL_BLUR_INTENSITY = 64
 
 PLAYER_KEYS = {
-	{cc = 'z', c = 'x', f = 's', jcc = 1, jc = 2, jf = 3},
-	{cc = 'c', c = 'v', f = 'f', jcc = 4, jc = 5, jf = 6},
-	{cc = 'b', c = 'n', f = 'h', jcc = 7, jc = 8, jf = 9},
-	{cc = 'm', c = ',', f = 'k', jcc = 10, jc = 11, jf = 12}
+	{cc = 'z', c = 'x', f = 's', jcc = 11, jc = 10, jf = 12},
+	{cc = 'c', c = 'v', f = 'f', jcc = 6, jc = 4, jf = 5},
+	{cc = 'b', c = 'n', f = 'h', jcc = 2, jc = 1, jf = 3},
+	{cc = 'm', c = ',', f = 'k', jcc = 9, jc = 7, jf = 8}
 }
 
 START_GAME_MAX_COUNT = 400 -- arbitrary

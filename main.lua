@@ -53,7 +53,7 @@ COIN_ACCENT = {220, 220, 230, 200}
 SCORE_INCREMENT = 66
 SCORE_CENTER_RING = 101
 SCORE_FULL_RING = 999
-SCORE_BOX_BUFFER = 20
+SCORE_BOX_BUFFER = 40
 
 SCORE_BOXES = {
 	{x = SCORE_BOX_BUFFER, y = SCORE_BOX_BUFFER},
@@ -62,7 +62,7 @@ SCORE_BOXES = {
 	{x = WIDTH - SCORE_BOX_BUFFER, y = HEIGHT - SCORE_BOX_BUFFER},
 }
 
-DO_BLUR = true
+DO_BLUR = false
 BLUR_SEGMENTS = 3
 ZONE_BLUR_SIZE = 2
 ZONE_BLUR_INTENSITY = 64 -- opacity of outermost blur out of 255
@@ -168,7 +168,7 @@ local menuStateMap = {
 }
 local menuStateMapSize = 4
 local menuCounter = 0
-local menuStateCountdown = 600
+local menuStateCountdown = 700
 --debug
 debug_print_keypresses = false
 
@@ -419,7 +419,7 @@ end
 function love.joystickpressed(js, button)
 	for i = 1, 4, 1 do
 		if (button == PLAYER_KEYS[i]['jf']) then
-			if gameState == STATE_MENU then
+			if gameState == STATE_MENU or gameState == STATE_POSTMENU then
 				if playerSystem.playerStates[i] == PLAYER_STATE_NONE then
 					playerSystem:addPlayer(i)
 				else

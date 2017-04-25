@@ -11,7 +11,7 @@ local credits = {
 	{text = 'Music and Sound', title=true, length=188},
 	{text = 'EVAN CONWAY', length=164},
 	{text = 'Cabinet Construction', title=true, length=232},
-	{text = 'ERIC VAN DER HELDE', length=236},
+	{text = 'ERIC VAN DER HEIDE', length=236},
 	{text = 'MATT GOLON', length=145},
 	{text = 'Cabinet Art', title=true, length=125},
 	{text = 'HALEY WHITE-BALLOWE', length=263},

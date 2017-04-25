@@ -152,10 +152,6 @@ local clock = {
 }
 
 local firstUpdate = true
-
-
-musicsystem = nil
-
 local postEffect = nil
 
 MENU_STATE_CREDITS = 'credits'

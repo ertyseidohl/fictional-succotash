@@ -16,6 +16,7 @@ function PlayerSystem:initialize()
 		0,
 		0
 	}
+	self.playerCountdownTimer = 0
 
 	self.playerScores = {
 		{score = 0, digits = 1,},
@@ -105,7 +106,7 @@ function PlayerSystem:update(dt, clock)
 		end
 	end
 
-	if clock.is_on_whole then
+	if self.playerCountdownTimer == 0 then
 		for i = 1, 4, 1 do
 			if self.playerCountdowns[i] > 0 then
 				self.playerCountdowns[i] = self.playerCountdowns[i] - 1
@@ -117,6 +118,10 @@ function PlayerSystem:update(dt, clock)
 		if not self:hasPlayers() and gameState == STATE_GAME_OVER then
 			backToMenu()
 		end
+	end
+	self.playerCountdownTimer = self.playerCountdownTimer + 1
+	if self.playerCountdownTimer == 60 then
+		self.playerCountdownTimer = 0
 	end
 end
 

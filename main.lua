@@ -8,15 +8,15 @@ GAME_NAME_LENGTH = 379
 -- global settings
 BPM = 300 -- debug
 BPS = BPM / 60
-WIDTH = 1366
-HEIGHT = 768
+WIDTH = 1280
+HEIGHT = 1024
 MAXRADIUS = math.min(WIDTH, HEIGHT) * 0.8
 INNER_RINGS = 3
 PLAYER_COLORS = {
 	{255,0,0,255},
 	{0,0,255,255},
-	{0,255,0,255},
-	{255,255,0,255}
+	{255,255,0,255},
+	{0,255,0,255}
 }
 TEXT_COLOR = {255, 255, 255, 255}
 
@@ -62,7 +62,7 @@ SCORE_BOXES = {
 	{x = WIDTH - SCORE_BOX_BUFFER, y = HEIGHT - SCORE_BOX_BUFFER},
 }
 
-DO_BLUR = false
+DO_BLUR = true
 BLUR_SEGMENTS = 3
 ZONE_BLUR_SIZE = 2
 ZONE_BLUR_INTENSITY = 64 -- opacity of outermost blur out of 255
@@ -75,14 +75,17 @@ DEVIL_BLUR_SIZE = 5
 DEVIL_BLUR_INTENSITY = 64
 
 PLAYER_KEYS = {
-	{cc = 'z', c = 'x', f = 's', jcc = 1, jc = 2, jf = 3},
-	{cc = 'c', c = 'v', f = 'f', jcc = 4, jc = 5, jf = 6},
-	{cc = 'b', c = 'n', f = 'h', jcc = 7, jc = 8, jf = 9},
-	{cc = 'm', c = ',', f = 'k', jcc = 10, jc = 11, jf = 12}
+	{cc = 'z', c = 'x', f = 's', jcc = 11, jc = 10, jf = 12},
+	{cc = 'c', c = 'v', f = 'f', jcc = 6, jc = 4, jf = 5},
+	{cc = 'b', c = 'n', f = 'h', jcc = 2, jc = 1, jf = 3},
+	{cc = 'm', c = ',', f = 'k', jcc = 9, jc = 7, jf = 8}
 }
 
 START_GAME_MAX_COUNT = 400 -- arbitrary
 START_GAME_COUNT_MOD = 40
+
+RINGS = 16
+SLICES = 32
 
 -- states
 STATE_MENU = 0
@@ -124,7 +127,8 @@ local menuStartGameCounter = 0
 
 -- global objects
 gameState = STATE_MENU
-field = Field:new(16, 32, MAXRADIUS)
+musicsystem = MusicSystem:new()
+field = Field:new(RINGS, SLICES, MAXRADIUS, musicsystem)
 playerSystem = PlayerSystem:new()
 menu = Menu:new()
 local joysticks = love.joystick.getJoysticks()
@@ -148,6 +152,7 @@ local clock = {
 }
 
 local firstUpdate = true
+
 
 musicsystem = nil
 
@@ -177,7 +182,7 @@ function love.load()
 	-- print(vendor,5,25)
 	-- print(device ,5,35)
 
-	musicsystem = MusicSystem:new()
+	musicsystem:load()
 end
 
 function love.draw()
@@ -256,6 +261,15 @@ function love.update(dt)
 
 	if gameState == STATE_PLAYING then
 		field:update(dt, clock)
+
+		if (field:devilIsSurrounded()) then
+			musicsystem:switchTrack()
+			for i = 1, 4, 1 do
+				playerSystem:incrementScore(i, RINGS)
+			end
+			field:upgradeDevil()
+			field:clear()
+		end
 	elseif gameState == STATE_MENU then
 
 		if playerSystem:hasPlayers() then

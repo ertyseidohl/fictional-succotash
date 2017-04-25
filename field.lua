@@ -10,10 +10,11 @@ local FIELD_SEGMENTS = 64
 
 local GRID_COLOR = {128, 0, 128}
 
-function Field:initialize(rings, slices, maxRadius)
+function Field:initialize(rings, slices, maxRadius, sound)
 	self.rings = rings
 	self.slices = slices
 	self.maxRadius = maxRadius
+	self.soundsystem = sound
 	self.zones = {}
 	self.ships = {nil, nil, nil, nil}
 	self.center = {
@@ -28,16 +29,16 @@ end
 
 function Field:addShip(player)
 	if player == 1 then
-		self.ships[1] = Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, PLAYER_KEYS[1])
+		self.ships[1] = Ship:new(1, PLAYER_COLORS[1], RADIAL_WIDTH_HALF, PLAYER_KEYS[1], self.soundsystem)
 	end
 	if player == 2 then
-		self.ships[2] = Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, PLAYER_KEYS[2])
+		self.ships[2] = Ship:new(2, PLAYER_COLORS[2], math.pi + RADIAL_WIDTH_HALF, PLAYER_KEYS[2], self.soundsystem)
 	end
 	if player == 3 then
-		self.ships[3] = Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, PLAYER_KEYS[3])
+		self.ships[3] = Ship:new(3, PLAYER_COLORS[3], math.pi * 0.5 + RADIAL_WIDTH_HALF, PLAYER_KEYS[3], self.soundsystem)
 	end
 	if player == 4 then
-		self.ships[4] = Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, PLAYER_KEYS[4])
+		self.ships[4] = Ship:new(4, PLAYER_COLORS[4], math.pi * 1.5 + RADIAL_WIDTH_HALF, PLAYER_KEYS[4], self.soundsystem)
 	end
 end
 
@@ -223,12 +224,6 @@ function Field:update(dt, clock, ai)
 	if overfilledSliceCount > 0 then
 		self.devil:prepBeam(overfilledSlice)
 	end
-
-	if clock.is_on_whole and slice_count == self.slices then
-		for i = 1, 4, 1 do
-			playerSystem:incrementScore(i, SCORE_FULL_RING * player_slice_counts[i])
-		end
-	end
 end
 
 function Field:clear()
@@ -240,6 +235,20 @@ function Field:makeShipInvincible(i)
 	if self.ships[i] ~= nil then
 		self.ships[i].invincibleTimer = SHIP_INVINCIBLE_TIME
 	end
+end
+
+function Field:devilIsSurrounded()
+	for i = 1, self.slices, 1 do
+		pulse = self:getZone(INNER_RINGS, i):getPulse()
+		if pulse == nil then
+			return false
+		end
+	end
+	return true
+end
+
+function Field:upgradeDevil()
+	self.devil:upgrade()
 end
 
 return Field

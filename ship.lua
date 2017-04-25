@@ -8,6 +8,9 @@ function Ship:initialize(number, color, startAngle, keys)
 	self.lives = SHIP_STARTING_LIVES
 	self.invincibleTimer = 0;
 	self.velocity = 0
+
+	self.aiVelocity = 0
+	self.aiFire = false
 end
 
 function Ship:draw(clock)
@@ -102,9 +105,26 @@ function Ship:isAlive()
 	return self.lives > 0
 end
 
-function Ship:update(dt, clock)
+function Ship:update(dt, clock, ai)
+
 	if not self:isAlive() then
 		return
+	end
+
+	if ai then
+		if clock.is_on_whole then
+			self.aiVelocity = math.random(3) - 2
+			if math.random(10) > 6 then
+				self.aiFire = true
+			else
+				self.aiFire = false
+			end
+		end
+		self.velocity = self.velocity + SHIP_ACCELERATION * self.aiVelocity
+
+		if self.aiFire then
+			field:fill(dt, self)
+		end
 	end
 
 	if love.keyboard.isDown(self.keys.f) or

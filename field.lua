@@ -149,20 +149,20 @@ function Field:drawCircles(clock)
 	end
 end
 
-function Field:update(dt, clock)
+function Field:update(dt, clock, ai)
 	-- update devil
 	self.devil:update(dt, clock)
 
 	-- update ships
 	for i = 1, 4, 1 do
-		if self.ships[i] and playerSystem.playerStates[i] == PLAYER_STATE_ALIVE then
-			self.ships[i]:update(dt, clock)
+		if self.ships[i] and playerSystem.playerStates[i] == PLAYER_STATE_ALIVE or ai then
+			self.ships[i]:update(dt, clock, ai)
 			if not self.ships[i]:isAlive() then
 				playerSystem:notifyOfDeath(i)
 			end
 		end
 	end
-	if playerSystem:getAlivePlayerCount() == 0 then
+	if playerSystem:getAlivePlayerCount() == 0 and not ai then
 		endGame()
 	end
 

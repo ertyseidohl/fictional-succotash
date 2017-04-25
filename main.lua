@@ -1,5 +1,10 @@
 class = require 'lib/middleclass'
 
+DEBUG = false
+
+GAME_NAME = 'RADION'
+GAME_NAME_LENGTH = 379
+
 -- global settings
 BPM = 300 -- debug
 BPS = BPM / 60
@@ -44,7 +49,7 @@ COIN_BUFFER = 5
 COIN_COLOR = {200, 200, 200, 200}
 COIN_ACCENT = {220, 220, 230, 200}
 
---scoring
+--scoringg
 SCORE_INCREMENT = 66
 SCORE_CENTER_RING = 101
 SCORE_FULL_RING = 999
@@ -83,6 +88,7 @@ START_GAME_COUNT_MOD = 40
 STATE_MENU = 0
 STATE_PLAYING = 1
 STATE_GAME_OVER = 2
+STATE_POSTMENU = 4
 
 PLAYER_STATE_NONE = 4
 PLAYER_STATE_ALIVE = 1
@@ -95,6 +101,14 @@ FONT_LARGE = love.graphics.newFont(32)
 FONT_MEDIUM_HEIGHT_PIXELS = 24
 FONT_MEDIUM_WIDTH_PIXELS = 14
 FONT_MEDIUM = love.graphics.newFont(24)
+
+FONT_TITLE_WIDTH_PIXELS = 54
+FONT_TITLE_HEIGHT_PIXELS = 96
+FONT_TITLE = love.graphics.newFont(96)
+
+FONT_CREDITS_HEIGHT_PIXELS = 22
+FONT_CREDITS_WIDTH_PIXELS = 12
+FONT_CREDITS = love.graphics.newFont(22)
 
 local Field = require 'field'
 local MusicSystem = require 'musicsystem'
@@ -135,10 +149,25 @@ local clock = {
 
 local firstUpdate = true
 
-local musicsystem = nil
+musicsystem = nil
 
 local postEffect = nil
 
+MENU_STATE_CREDITS = 'credits'
+MENU_STATE_TEXT = 'text'
+MENU_STATE_GAMEPLAY = 'gameplay'
+
+local menuState = MENU_STATE_TEXT
+local menuStateIndex = 1
+local menuStateMap = {
+	MENU_STATE_TEXT,
+	MENU_STATE_CREDITS,
+	MENU_STATE_TEXT,
+	MENU_STATE_GAMEPLAY,
+}
+local menuStateMapSize = 4
+local menuCounter = 0
+local menuStateCountdown = 600
 --debug
 debug_print_keypresses = false
 
@@ -154,8 +183,12 @@ end
 function love.draw()
 	if gameState == STATE_PLAYING then
 		field:draw(clock)
-	elseif gameState == STATE_MENU then
-		menu:draw(clock)
+	elseif gameState == STATE_MENU or gameState == STATE_POSTMENU then
+		if menuState == MENU_STATE_GAMEPLAY then
+			field:draw(clock)
+		end
+		menu:draw(clock, menuState)
+
 		if isGameStarting then
 			love.graphics.setColor({255, 255, 255, 255})
 			-- debug TODO MOVE THIS
@@ -224,7 +257,34 @@ function love.update(dt)
 	if gameState == STATE_PLAYING then
 		field:update(dt, clock)
 	elseif gameState == STATE_MENU then
-		menu:update(dt, clock)
+
+		if playerSystem:hasPlayers() then
+			gameState = STATE_POSTMENU
+		end
+
+		menuCounter = menuCounter + 1
+		if menuCounter > menuStateCountdown then
+			if menuState == MENU_STATE_GAMEPLAY then
+				endGame()
+				backToMenu()
+				-- hack to play menu screen music
+			end
+			menuStateIndex = menuStateIndex + 1
+			if menuStateIndex > menuStateMapSize then
+				menuStateIndex = 1
+			end
+			menuState = menuStateMap[menuStateIndex]
+			menuCounter = 0
+		end
+
+		menu:update(dt, clock, menuState)
+	elseif gameState == STATE_POSTMENU then
+		if menuState == MENU_STATE_GAMEPLAY then
+			backToMenu()
+			gameState = STATE_POSTMENU
+			menuState = MENU_STATE_TEXT
+		end
+		menu:update(dt, clock, menuState)
 	elseif gameState == STATE_GAME_OVER then
 		gameOverDevilSize = gameOverDevilSize + GAME_OVER_DEVIL_GROWTH_SPEED
 	end
@@ -312,7 +372,7 @@ function love.keypressed(key)
 
 	for i = 1, 4, 1 do
 		if tostring(i) == key then
-			if gameState == STATE_MENU then
+			if gameState == STATE_MENU or gameState == STATE_POSTMENU then
 				if playerSystem.playerStates[i] == PLAYER_STATE_NONE then
 					playerSystem:addPlayer(i)
 				else

@@ -224,12 +224,6 @@ function Field:update(dt, clock)
 	if overfilledSliceCount > 0 then
 		self.devil:prepBeam(overfilledSlice)
 	end
-
-	if clock.is_on_whole and slice_count == self.slices then
-		for i = 1, 4, 1 do
-			playerSystem:incrementScore(i, SCORE_FULL_RING * player_slice_counts[i])
-		end
-	end
 end
 
 function Field:clear()
@@ -241,6 +235,20 @@ function Field:makeShipInvincible(i)
 	if self.ships[i] ~= nil then
 		self.ships[i].invincibleTimer = SHIP_INVINCIBLE_TIME
 	end
+end
+
+function Field:devilIsSurrounded()
+	for i = 1, self.slices, 1 do
+		pulse = self:getZone(INNER_RINGS, i):getPulse()
+		if pulse == nil then
+			return false
+		end
+	end
+	return true
+end
+
+function Field:upgradeDevil()
+	self.devil:upgrade()
 end
 
 return Field

@@ -6,15 +6,10 @@ function Devil:initialize(field)
 	self.center = field.center
 	self.color = DEVIL_COLOR
 	self.hands = {
-		-- todo more hands
-		Hand:new(self, math.rad(90)),
-		Hand:new(self, math.rad(180)),
-		Hand:new(self, math.rad(270)),
-		Hand:new(self, math.rad(0)),
-		Hand:new(self, math.rad(90)),
+		Hand:new(self, math.rad(90))
 	}
-	self.handCount = 5
-	self.handTargets = {0, 0, 0, 0, 0}
+	self.handCount = 1
+	self.handTargets = {0}
 
 	self.handPositionOffset = 0
 
@@ -94,15 +89,15 @@ function Devil:draw(clock)
 	love.graphics.setColor(unpack(DEVIL_COLOR))
 	love.graphics.circle('fill', self.center.x, self.center.y, DEVIL_RADIUS, DEVIL_LINE_SEGMENTS)
 
+	for _, hand in pairs(self.hands) do
+		hand:draw()
+	end
+
 	if DO_BLUR then
 		love.graphics.setColor(DEVIL_COLOR[1], DEVIL_COLOR[2], DEVIL_COLOR[3], DEVIL_BLUR_INTENSITY)
 
 		for i = 1, clock.quarter_count + 1, 1 do
 			love.graphics.circle('fill', self.center.x, self.center.y, DEVIL_RADIUS + (DEVIL_BLUR_SIZE * i), DEVIL_LINE_SEGMENTS)
-		end
-
-		for _, hand in pairs(self.hands) do
-			hand:draw()
 		end
 	end
 end
@@ -203,7 +198,6 @@ end
 
 function Devil:attackHands(clock)
 	for _, hand in pairs(self.hands) do
-		--print(self.handAttack)
 		self.handAttackMap[self.handAttack](clock, hand)
 	end
 end
@@ -260,12 +254,18 @@ end
 --final moves
 function beam(self)
 	local slice = self.handPositionOffset + 2 % field.slices  -- that magic 2 fixes a bug elsewhere
-	for i = 1, field.rings, 1 do
+	for i = INNER_RINGS, field.rings, 1 do
 		field:getZone(i, slice):dropPulses()
 		if i < field.rings - 2 then
 			field:fillZone(100, i, slice, self.hands[1], true)
 		end
 	end
+end
+
+function Devil:upgrade()
+	table.insert(self.hands, Hand:new(self, math.rad(90)))
+	self.handCount = self.handCount + 1
+	table.insert(self.handTargets, 0)
 end
 
 return Devil

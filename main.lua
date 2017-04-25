@@ -79,6 +79,9 @@ PLAYER_KEYS = {
 START_GAME_MAX_COUNT = 400 -- arbitrary
 START_GAME_COUNT_MOD = 40
 
+RINGS = 16
+SLICES = 32
+
 -- states
 STATE_MENU = 0
 STATE_PLAYING = 1
@@ -111,7 +114,7 @@ local menuStartGameCounter = 0
 -- global objects
 gameState = STATE_MENU
 musicsystem = MusicSystem:new()
-field = Field:new(16, 32, MAXRADIUS, musicsystem)
+field = Field:new(RINGS, SLICES, MAXRADIUS, musicsystem)
 playerSystem = PlayerSystem:new()
 menu = Menu:new()
 local joysticks = love.joystick.getJoysticks()
@@ -222,6 +225,15 @@ function love.update(dt)
 
 	if gameState == STATE_PLAYING then
 		field:update(dt, clock)
+
+		if (field:devilIsSurrounded()) then
+			musicsystem:switchTrack()
+			for i = 1, 4, 1 do
+				playerSystem:incrementScore(i, RINGS)
+			end
+			field:upgradeDevil()
+			field:clear()
+		end
 	elseif gameState == STATE_MENU then
 		menu:update(dt, clock)
 	elseif gameState == STATE_GAME_OVER then

@@ -265,9 +265,8 @@ function love.update(dt)
 		menuCounter = menuCounter + 1
 		if menuCounter > menuStateCountdown then
 			if menuState == MENU_STATE_GAMEPLAY then
-				endGame()
+				endGame() 				-- hack to play menu screen music
 				backToMenu()
-				-- hack to play menu screen music
 			end
 			menuStateIndex = menuStateIndex + 1
 			if menuStateIndex > menuStateMapSize then
@@ -280,6 +279,7 @@ function love.update(dt)
 		menu:update(dt, clock, menuState)
 	elseif gameState == STATE_POSTMENU then
 		if menuState == MENU_STATE_GAMEPLAY then
+			endGame()
 			backToMenu()
 			gameState = STATE_POSTMENU
 			menuState = MENU_STATE_TEXT

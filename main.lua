@@ -339,7 +339,7 @@ end
 function backToMenu()
 	gameState = STATE_MENU
 	gameOverDevilSize = 0
-	field:clear()
+	field:reset()
 end
 
 function resurrectGame()

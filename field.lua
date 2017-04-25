@@ -231,6 +231,13 @@ function Field:clear()
 	self:generateZones()
 end
 
+function Field:reset()
+	self:clear()
+	self.ships = {nil, nil, nil, nil}
+	self.devil = Devil:new(self)
+	playerSystem:resetScore()
+end
+
 function Field:makeShipInvincible(i)
 	if self.ships[i] ~= nil then
 		self.ships[i].invincibleTimer = SHIP_INVINCIBLE_TIME

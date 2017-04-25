@@ -49,6 +49,15 @@ function PlayerSystem:addPlayer(player)
 	end
 end
 
+function PlayerSystem:resetScore()
+	self.playerScores = {
+		{score = 0, digits = 1,},
+		{score = 0, digits = 1,},
+		{score = 0, digits = 1,},
+ 		{score = 0, digits = 1,},
+	}
+end
+
 function PlayerSystem:draw()
 
 	if gameState ~= STATE_MENU and gameState ~= STATE_POSTMENU then
